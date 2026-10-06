@@ -1,299 +1,467 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="entering">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>우연을 레이어딩하다 — Chance Layering Engine</title>
+<title>우연을 레이어링하다 — Layering Chance</title>
+<meta name="description" content="콘크리트, 철골, 문자의 파편이 무작위로 겹쳐 매번 단 한 점의 콜라주가 되는 인터랙티브 웹 작품." />
+<script>setTimeout(function(){document.documentElement.classList.remove('entering')},2500)</script>
+<noscript><style>#curtain{display:none}</style></noscript>
 
-<!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
-  if (window.tailwind) tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          neon: '#E8FF00',
-          blood: '#FF2B1C',
-          ink: '#0d0d0d',
-          concrete: '#8d8b85',
-          paper: '#d9d7cf',
-        },
-        fontFamily: {
-          disp: ['"Archivo Black"', 'sans-serif'],
-          kr: ['"Black Han Sans"', 'sans-serif'],
-          mono: ['"Space Mono"', 'monospace'],
-          body: ['"Noto Sans KR"', 'sans-serif'],
-        },
-      },
-    },
-  };
+  if (window.tailwind) tailwind.config = { theme:{ extend:{
+    colors:{ neon:'#E8FF00', blood:'#FF2B1C', ink:'#0d0d0d', concrete:'#8d8b85', paper:'#d9d7cf' },
+    fontFamily:{ disp:['"Archivo Black"','sans-serif'], kr:['"Black Han Sans"','sans-serif'], mono:['"Space Mono"','monospace'], body:['"Noto Sans KR"','sans-serif'] },
+  }}};
 </script>
-
-<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-
-<!-- GSAP -->
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-
 <style>
-  :root{
-    --neon:#E8FF00; --red:#FF2B1C; --ink:#0d0d0d;
-    --cc:#8d8b85; --cc-d:#6f6e6a; --paper:#d9d7cf;
-    --cell:118px;
-    --noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-    --stain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='900' height='900'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='.008' numOctaves='4' seed='7'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .38 -.06'/></filter><rect width='100%' height='100%' filter='url(%23s)'/></svg>");
-  }
-  @media (max-width: 640px){ :root{ --cell:92px; } }
+/* =========================================================
+   우연을 레이어링하다 — Layering Chance
+   shared stylesheet (brutalist / deconstructivist)
+   ========================================================= */
+:root{
+  --neon:#E8FF00; --red:#FF2B1C; --ink:#0d0d0d;
+  --cc:#8d8b85; --cc-d:#6f6e6a; --paper:#d9d7cf; --bone:#efeee8;
+  --cell:118px;
+  --noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --stain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='900' height='900'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='.008' numOctaves='4' seed='7'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .38 -.06'/></filter><rect width='100%' height='100%' filter='url(%23s)'/></svg>");
+}
+@media (max-width: 640px){ :root{ --cell:92px; } }
 
-  html{ scroll-behavior:smooth; }
-  body{
-    background-color:var(--cc);
-    background-image:var(--noise), var(--stain);
-    color:var(--ink);
-    font-family:'Noto Sans KR', sans-serif;
-    overflow-x:hidden;
-  }
-  ::selection{ background:var(--neon); color:var(--ink); }
+html{ scroll-behavior:smooth; }
+body{
+  background-color:var(--cc);
+  background-image:var(--noise), var(--stain);
+  color:var(--ink);
+  font-family:'Noto Sans KR', sans-serif;
+  overflow-x:hidden;
+}
+::selection{ background:var(--neon); color:var(--ink); }
 
-  /* ---------- Brutal primitives ---------- */
-  .bx{ border:5px solid var(--ink); box-shadow:10px 10px 0 var(--ink); }
-  .bx-red{ border:5px solid var(--ink); box-shadow:10px 10px 0 var(--red); }
-  .concrete-fill{ background-color:#a9a7a0; background-image:var(--noise), var(--stain); }
-  .concrete-dark{ background-color:#5e5d59; background-image:var(--noise); }
-  .hazard{ background:repeating-linear-gradient(-45deg, var(--neon) 0 16px, var(--ink) 16px 32px); }
-  .hazard-red{ background:repeating-linear-gradient(-45deg, var(--red) 0 12px, var(--ink) 12px 24px); }
-  .outline-text{ color:transparent; -webkit-text-stroke:3px var(--ink); }
-  .blueprint{
-    background-image:
-      linear-gradient(rgba(13,13,13,.13) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(13,13,13,.13) 1px, transparent 1px);
-    background-size:48px 48px;
-  }
+/* ---------- Page curtain (transition between rooms) ---------- */
+#curtain{
+  position:fixed; inset:0; z-index:300; pointer-events:none;
+  background-color:var(--ink); background-image:var(--noise);
+  transform:translateY(-101%);
+  display:flex; flex-direction:column; justify-content:flex-end;
+}
+html.entering #curtain{ transform:none; }
+#curtain .c-title{ font-family:'Black Han Sans', sans-serif; color:var(--neon); font-size:clamp(48px, 11vw, 180px); line-height:.85; padding:0 4vw 3vw; }
+#curtain .c-edge{ height:18px; background:repeating-linear-gradient(-45deg, var(--neon) 0 16px, var(--ink) 16px 32px); }
 
-  .btn-brut{
-    font-family:'Archivo Black', 'Black Han Sans', sans-serif;
-    border:4px solid var(--ink); background:var(--neon); color:var(--ink);
-    box-shadow:6px 6px 0 var(--ink); text-transform:uppercase;
-    transition:transform .08s, box-shadow .08s, background .15s;
-    cursor:pointer; user-select:none;
-  }
-  .btn-brut:hover{ transform:translate(-2px,-2px); box-shadow:8px 8px 0 var(--ink); }
-  .btn-brut:active{ transform:translate(6px,6px); box-shadow:0 0 0 var(--ink); }
-  .btn-brut.is-active{ background:var(--red); color:#fff; box-shadow:6px 6px 0 var(--ink), inset 0 0 0 3px var(--ink); }
-  .btn-brut.ghost{ background:#e9e8e2; }
-  .btn-brut:focus-visible{ outline:4px dashed var(--red); outline-offset:4px; }
+/* ---------- Brutal primitives ---------- */
+.bx{ border:5px solid var(--ink); box-shadow:10px 10px 0 var(--ink); }
+.bx-red{ border:5px solid var(--ink); box-shadow:10px 10px 0 var(--red); }
+.concrete-fill{ background-color:#a9a7a0; background-image:var(--noise), var(--stain); }
+.concrete-dark{ background-color:#5e5d59; background-image:var(--noise); }
+.hazard{ background:repeating-linear-gradient(-45deg, var(--neon) 0 16px, var(--ink) 16px 32px); }
+.hazard-red{ background:repeating-linear-gradient(-45deg, var(--red) 0 12px, var(--ink) 12px 24px); }
+.outline-text{ color:transparent; -webkit-text-stroke:3px var(--ink); }
+.outline-neon{ color:transparent; -webkit-text-stroke:2px var(--neon); }
+.blueprint{
+  background-image:
+    linear-gradient(rgba(13,13,13,.13) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13,13,13,.13) 1px, transparent 1px);
+  background-size:48px 48px;
+}
+.plate{ font-family:'Space Mono', monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; }
 
-  /* ---------- Art (collage) ---------- */
-  .art{
-    position:relative; aspect-ratio:1/1; overflow:hidden;
-    background:var(--bg, var(--paper));
-    perspective:1600px; container-type:inline-size;
-  }
-  .art-inner{ position:absolute; inset:0; transition:transform .9s cubic-bezier(.2,.9,.2,1); }
-  .art-grid{
-    position:absolute; inset:0; pointer-events:none;
-    background-image:
-      linear-gradient(var(--gl, rgba(0,0,0,.16)) 1px, transparent 1px),
-      linear-gradient(90deg, var(--gl, rgba(0,0,0,.16)) 1px, transparent 1px);
-    background-size:var(--gs,10%) var(--gs,10%);
-  }
-  .art-noise{
-    position:absolute; inset:0; pointer-events:none; z-index:2;
-    background-image:var(--noise); mix-blend-mode:multiply; opacity:.55;
-  }
-  .lyr{ position:absolute; aspect-ratio:1/1; transition:transform .9s cubic-bezier(.2,.9,.2,1), opacity .3s; }
-  .lyr-b{ position:absolute; inset:0; transform-origin:center; }
-  .lyr svg{ width:100%; height:100%; overflow:visible; display:block; }
+.btn-brut{
+  font-family:'Archivo Black', 'Black Han Sans', sans-serif;
+  border:4px solid var(--ink); background:var(--neon); color:var(--ink);
+  box-shadow:6px 6px 0 var(--ink); text-transform:uppercase;
+  transition:transform .08s, box-shadow .08s, background .15s, color .15s;
+  cursor:pointer; user-select:none; display:inline-flex; align-items:center; justify-content:center; gap:.5em;
+}
+.btn-brut:hover{ transform:translate(-2px,-2px); box-shadow:8px 8px 0 var(--ink); }
+.btn-brut:active{ transform:translate(6px,6px); box-shadow:0 0 0 var(--ink); }
+.btn-brut.is-active{ background:var(--red); color:#fff; box-shadow:6px 6px 0 var(--ink), inset 0 0 0 3px var(--ink); }
+.btn-brut.ghost{ background:#e9e8e2; }
+.btn-brut.dark{ background:var(--ink); color:var(--neon); }
+.btn-brut.dark:hover{ background:var(--red); color:#fff; }
+.btn-brut:focus-visible, a:focus-visible{ outline:4px dashed var(--red); outline-offset:4px; }
 
-  /* exploded (dissection) view */
-  .art.exploded{ overflow:visible; background:transparent; }
-  .art.exploded .art-noise{ display:none; }
-  .art.exploded .art-inner{
-    transform-style:preserve-3d; background:var(--bg);
-    outline:4px solid var(--ink);
-    transform:rotateX(58deg) rotateZ(-36deg) scale(.66);
-  }
-  .art.exploded .lyr{ transform:translateZ(calc((var(--zi) + 1) * 30px)); }
-  .art.exploded .lyr-b{ mix-blend-mode:normal !important; opacity:1 !important; }
-  .art.exploded .lyr::before{
-    content:''; position:absolute; inset:-6%;
-    border:2px dashed rgba(13,13,13,.55); background:rgba(232,255,0,.07);
-  }
-  .art.exploded .lyr::after{
-    content:attr(data-label); position:absolute; left:-6%; top:-6%; transform:translateY(-100%);
-    font:700 10px/1 'Space Mono', monospace; background:var(--ink); color:var(--neon); padding:3px 5px; white-space:nowrap;
-  }
-  .art.focus .lyr{ opacity:.12; }
-  .art.focus .lyr.on{ opacity:1; }
-  .art.focus.exploded .lyr.on::before{ border-color:var(--red); border-style:solid; border-width:3px; background:rgba(255,43,28,.12); }
+/* ---------- Navigation ---------- */
+.site-nav{ position:relative; z-index:30; }
+.nav-room{ font-family:'Space Mono', monospace; font-size:12px; font-weight:700; letter-spacing:.06em; padding:.55em .8em; border:3px solid var(--ink); background:#e9e8e2; transition:background .15s, color .15s, transform .1s; display:inline-flex; gap:.5em; align-items:baseline; }
+.nav-room b{ font-family:'Black Han Sans', sans-serif; font-weight:400; font-size:14px; letter-spacing:0; }
+.nav-room:hover{ background:var(--neon); transform:translate(-2px,-2px); }
+.nav-room.is-here{ background:var(--ink); color:var(--neon); }
 
-  /* ---------- Stage ---------- */
-  #stage{ cursor:crosshair; touch-action:pan-y; user-select:none; }
-  #stage.pinned{ cursor:zoom-in; }
-  .stamp{
-    position:absolute; z-index:5; pointer-events:none;
-    border:7px double var(--red); color:var(--red); padding:.5em .8em .45em;
-    font-family:'Black Han Sans', sans-serif; line-height:1; text-align:center;
-    mix-blend-mode:multiply; background:rgba(255,255,255,.08);
-  }
-  .stamp .s1{ display:block; font-size:clamp(28px, 6cqi, 54px); }
-  .stamp .s2{ display:block; font:700 clamp(9px, 1.6cqi, 13px)/1.2 'Space Mono', monospace; margin-top:.4em; letter-spacing:.08em; }
-  .spin-label{ animation:flick .12s steps(2) infinite; }
-  @keyframes flick{ 50%{ opacity:.2; } }
+/* ---------- Art (collage) ---------- */
+.art{
+  position:relative; aspect-ratio:1/1; overflow:hidden;
+  background:var(--bg, var(--paper));
+  perspective:1600px; container-type:inline-size;
+}
+.art-inner{ position:absolute; inset:0; transition:transform .9s cubic-bezier(.2,.9,.2,1); }
+.art-grid{
+  position:absolute; inset:0; pointer-events:none;
+  background-image:
+    linear-gradient(var(--gl, rgba(0,0,0,.16)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--gl, rgba(0,0,0,.16)) 1px, transparent 1px);
+  background-size:var(--gs,10%) var(--gs,10%);
+}
+.art-noise{ position:absolute; inset:0; pointer-events:none; z-index:2; background-image:var(--noise); mix-blend-mode:multiply; opacity:.55; }
+.lyr{ position:absolute; aspect-ratio:1/1; transition:transform .9s cubic-bezier(.2,.9,.2,1), opacity .3s; }
+.lyr-b{ position:absolute; inset:0; transform-origin:center; }
+.lyr svg{ width:100%; height:100%; overflow:visible; display:block; }
 
-  /* ---------- Reels ---------- */
-  .reel-win{
-    position:relative; height:calc(var(--cell) + 10px); overflow:hidden;
-    border:5px solid var(--ink); background:#cfcdc5;
-    box-shadow:inset 0 14px 18px -10px rgba(0,0,0,.55), inset 0 -14px 18px -10px rgba(0,0,0,.55);
-  }
-  .reel-win::after{
-    content:''; position:absolute; left:-4px; right:-4px; top:50%; height:3px; margin-top:-1.5px;
-    background:var(--red); box-shadow:0 0 0 1px var(--ink); pointer-events:none; opacity:.85;
-  }
-  .reel-win.blur .reel-strip{ filter:blur(2.5px) contrast(1.4); }
-  .reel-win.hit{ background:var(--neon); }
-  .reel-strip{ will-change:transform; }
-  .cell{ height:var(--cell); position:relative; display:flex; align-items:center; justify-content:center; border-bottom:3px dashed rgba(13,13,13,.25); }
-  .cell svg{ width:78%; height:78%; overflow:visible; }
-  .cell-tag{ position:absolute; left:4px; bottom:3px; font:700 9px/1 'Space Mono', monospace; background:var(--ink); color:var(--neon); padding:2px 3px; }
-  .cell.void{ font-family:'Archivo Black'; font-size:52px; color:var(--red); background:repeating-linear-gradient(45deg, transparent 0 8px, rgba(13,13,13,.12) 8px 10px); }
+.art.exploded{ overflow:visible; background:transparent; }
+.art.exploded .art-noise{ display:none; }
+.art.exploded .art-inner{
+  transform-style:preserve-3d; background:var(--bg);
+  outline:4px solid var(--ink);
+  transform:rotateX(58deg) rotateZ(-36deg) scale(.66);
+}
+.art.exploded .lyr{ transform:translateZ(calc((var(--zi) + 1) * 30px)); }
+.art.exploded .lyr-b{ mix-blend-mode:normal !important; opacity:1 !important; }
+.art.exploded .lyr::before{ content:''; position:absolute; inset:-6%; border:2px dashed rgba(13,13,13,.55); background:rgba(232,255,0,.07); }
+.art.exploded .lyr::after{
+  content:attr(data-label); position:absolute; left:-6%; top:-6%; transform:translateY(-100%);
+  font:700 10px/1 'Space Mono', monospace; background:var(--ink); color:var(--neon); padding:3px 5px; white-space:nowrap;
+}
+.art.focus .lyr{ opacity:.12; }
+.art.focus .lyr.on{ opacity:1; }
+.art.focus.exploded .lyr.on::before{ border-color:var(--red); border-style:solid; border-width:3px; background:rgba(255,43,28,.12); }
 
-  /* ---------- Lever ---------- */
-  .lever-house{ position:relative; width:122px; display:flex; flex-direction:column; align-items:center; padding:14px 0 18px; cursor:pointer; }
-  .lever-track{ position:relative; width:30px; flex:1; min-height:300px; background:var(--ink); box-shadow:inset 0 0 0 3px #2b2b2b, 0 0 0 4px var(--ink); }
-  .lever-rod{
-    position:absolute; left:50%; top:-10px; width:16px; transform:translateX(-50%);
-    background:repeating-linear-gradient(180deg, #c8c7c0 0 6px, #6c6b67 6px 9px);
-    border:3px solid var(--ink); height:58px;
-  }
-  .lever-cap{ position:absolute; top:-26px; left:50%; width:62px; height:26px; margin-left:-31px; background:var(--ink); }
-  .lever-knob{
-    position:absolute; left:50%; top:0; width:98px; height:98px; margin-left:-49px;
-    background:var(--neon); border:6px solid var(--ink); box-shadow:8px 8px 0 var(--ink);
-    cursor:grab; touch-action:none; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    font-family:'Archivo Black'; user-select:none; z-index:3;
-  }
-  .lever-knob:active{ cursor:grabbing; }
-  .lever-knob .stripe{ position:absolute; left:0; right:0; top:0; height:16px; }
-  .lever-knob.armed{ background:var(--red); color:#fff; }
+/* ---------- Stage ---------- */
+#stage{ cursor:crosshair; touch-action:pan-y; user-select:none; }
+#stage.pinned{ cursor:zoom-in; }
+.stamp{
+  position:absolute; z-index:5; pointer-events:none;
+  border:7px double var(--red); color:var(--red); padding:.5em .8em .45em;
+  font-family:'Black Han Sans', sans-serif; line-height:1; text-align:center;
+  mix-blend-mode:multiply; background:rgba(255,255,255,.08);
+}
+.stamp .s1{ display:block; font-size:clamp(28px, 6cqi, 54px); }
+.stamp .s2{ display:block; font:700 clamp(9px, 1.6cqi, 13px)/1.2 'Space Mono', monospace; margin-top:.4em; letter-spacing:.08em; }
+.spin-label{ animation:flick .12s steps(2) infinite; }
+@keyframes flick{ 50%{ opacity:.2; } }
 
-  /* ---------- Shake meter ---------- */
-  .meter{ height:22px; border:4px solid var(--ink); background:#e9e8e2; position:relative; overflow:hidden; }
-  .meter-fill{ position:absolute; inset:0 auto 0 0; width:0; background:var(--ink); }
-  .meter-fill.hot{ background:var(--red); }
-  .meter::after{ content:''; position:absolute; inset:0; background:repeating-linear-gradient(90deg, transparent 0 18px, rgba(233,232,226,.9) 18px 21px); pointer-events:none; }
+/* ---------- Reels ---------- */
+.reel-win{
+  position:relative; height:calc(var(--cell) + 10px); overflow:hidden;
+  border:5px solid var(--ink); background:#cfcdc5;
+  box-shadow:inset 0 14px 18px -10px rgba(0,0,0,.55), inset 0 -14px 18px -10px rgba(0,0,0,.55);
+}
+.reel-win::after{
+  content:''; position:absolute; left:-4px; right:-4px; top:50%; height:3px; margin-top:-1.5px;
+  background:var(--red); box-shadow:0 0 0 1px var(--ink); pointer-events:none; opacity:.85;
+}
+.reel-win.blur .reel-strip{ filter:blur(2.5px) contrast(1.4); }
+.reel-win.hit{ background:var(--neon); }
+.reel-strip{ will-change:transform; }
+.cell{ height:var(--cell); position:relative; display:flex; align-items:center; justify-content:center; border-bottom:3px dashed rgba(13,13,13,.25); }
+.cell svg{ width:78%; height:78%; overflow:visible; }
+.cell-tag{ position:absolute; left:4px; bottom:3px; font:700 9px/1 'Space Mono', monospace; background:var(--ink); color:var(--neon); padding:2px 3px; }
+.cell.void{ font-family:'Archivo Black'; font-size:52px; color:var(--red); background:repeating-linear-gradient(45deg, transparent 0 8px, rgba(13,13,13,.12) 8px 10px); }
 
-  /* ---------- Archive cards ---------- */
-  .card{
-    display:block; width:100%; text-align:left; background:#efeee8;
-    border:5px solid var(--ink); box-shadow:8px 8px 0 var(--ink);
-    transform:rotate(var(--r,0deg)) translateY(var(--dy,0px));
-    transition:transform .25s cubic-bezier(.3,1.6,.5,1), box-shadow .2s;
-  }
-  .card:hover{ transform:rotate(0deg) translate(-4px,-6px); box-shadow:14px 14px 0 var(--red); z-index:5; position:relative; }
-  .card .art{ border-bottom:5px solid var(--ink); }
+/* ---------- Lever ---------- */
+.lever-house{ position:relative; width:122px; display:flex; flex-direction:column; align-items:center; padding:14px 0 18px; cursor:pointer; }
+.lever-track{ position:relative; width:30px; flex:1; min-height:300px; background:var(--ink); box-shadow:inset 0 0 0 3px #2b2b2b, 0 0 0 4px var(--ink); }
+.lever-rod{
+  position:absolute; left:50%; top:-10px; width:16px; transform:translateX(-50%);
+  background:repeating-linear-gradient(180deg, #c8c7c0 0 6px, #6c6b67 6px 9px);
+  border:3px solid var(--ink); height:58px;
+}
+.lever-cap{ position:absolute; top:-26px; left:50%; width:62px; height:26px; margin-left:-31px; background:var(--ink); }
+.lever-knob{
+  position:absolute; left:50%; top:0; width:98px; height:98px; margin-left:-49px;
+  background:var(--neon); border:6px solid var(--ink); box-shadow:8px 8px 0 var(--ink);
+  cursor:grab; touch-action:none; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-family:'Archivo Black'; user-select:none; z-index:3;
+}
+.lever-knob:active{ cursor:grabbing; }
+.lever-knob .stripe{ position:absolute; left:0; right:0; top:0; height:16px; }
+.lever-knob.armed{ background:var(--red); color:#fff; }
 
-  /* ---------- Modal ---------- */
-  #modal.hidden{ display:none; }
-  #modalOverlay{ background:rgba(8,8,8,.86); background-image:var(--noise); backdrop-filter:blur(3px) grayscale(1); }
-  #modalBox{ max-height:92vh; }
-  .row-l{ transition:background .12s, transform .12s; }
-  .row-l:hover, .row-l.on{ background:var(--neon); transform:translateX(6px); }
-  .kbadge{ font:700 10px/1 'Space Mono', monospace; padding:4px 6px; border:2px solid var(--ink); white-space:nowrap; }
-  .k-concrete{ background:#9a9893; color:var(--ink); }
-  .k-steel{ background:var(--red); color:#fff; }
-  .k-type{ background:var(--neon); color:var(--ink); }
-  .k-hybrid{ background:var(--ink); color:var(--neon); }
+/* ---------- Shake meter ---------- */
+.meter{ height:22px; border:4px solid var(--ink); background:#e9e8e2; position:relative; overflow:hidden; }
+.meter-fill{ position:absolute; inset:0 auto 0 0; width:0; background:var(--ink); }
+.meter-fill.hot{ background:var(--red); }
+.meter::after{ content:''; position:absolute; inset:0; background:repeating-linear-gradient(90deg, transparent 0 18px, rgba(233,232,226,.9) 18px 21px); pointer-events:none; }
 
-  /* ---------- FX ---------- */
-  #flash{ opacity:0; pointer-events:none; }
-  #breach{ opacity:0; pointer-events:none; -webkit-text-stroke:4px var(--ink); }
-  #cracks path{ vector-effect:non-scaling-stroke; }
-  .scroll-hint{ animation:bob 1.1s ease-in-out infinite; }
-  @keyframes bob{ 50%{ transform:translateY(6px); } }
+/* ---------- Archive cards ---------- */
+.card{
+  display:block; width:100%; text-align:left; background:var(--bone);
+  border:5px solid var(--ink); box-shadow:8px 8px 0 var(--ink);
+  transform:rotate(var(--r,0deg)) translateY(var(--dy,0px));
+  transition:transform .25s cubic-bezier(.3,1.6,.5,1), box-shadow .2s;
+}
+.card:hover{ transform:rotate(0deg) translate(-4px,-6px); box-shadow:14px 14px 0 var(--red); z-index:5; position:relative; }
+.card .art{ border-bottom:5px solid var(--ink); }
 
-  .scrollbar-brut::-webkit-scrollbar{ width:14px; }
-  .scrollbar-brut::-webkit-scrollbar-track{ background:#c9c7bf; border-left:3px solid var(--ink); }
-  .scrollbar-brut::-webkit-scrollbar-thumb{ background:var(--ink); border:3px solid var(--neon); }
+/* ---------- Modal ---------- */
+#modal.hidden{ display:none; }
+#modalOverlay{ background:rgba(8,8,8,.86); background-image:var(--noise); backdrop-filter:blur(3px) grayscale(1); }
+#modalBox{ max-height:92vh; }
+.row-l{ transition:background .12s, transform .12s; }
+.row-l:hover, .row-l.on{ background:var(--neon); transform:translateX(6px); }
+.kbadge{ font:700 10px/1 'Space Mono', monospace; padding:4px 6px; border:2px solid var(--ink); white-space:nowrap; }
+.k-concrete{ background:#9a9893; color:var(--ink); }
+.k-steel{ background:var(--red); color:#fff; }
+.k-type{ background:var(--neon); color:var(--ink); }
+.k-hybrid{ background:var(--ink); color:var(--neon); }
+
+/* ---------- FX ---------- */
+#flash{ position:fixed; inset:0; z-index:90; opacity:0; pointer-events:none; mix-blend-mode:difference; }
+#breach{ position:fixed; inset:0; z-index:91; display:flex; align-items:center; justify-content:center; font-family:'Black Han Sans', sans-serif; font-size:40vw; line-height:1; color:var(--red); opacity:0; pointer-events:none; -webkit-text-stroke:4px var(--ink); }
+#cracks{ position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+#cracks path{ vector-effect:non-scaling-stroke; }
+
+.scrollbar-brut::-webkit-scrollbar{ width:14px; }
+.scrollbar-brut::-webkit-scrollbar-track{ background:#c9c7bf; border-left:3px solid var(--ink); }
+.scrollbar-brut::-webkit-scrollbar-thumb{ background:var(--ink); border:3px solid var(--neon); }
+
+/* ---------- Prologue (index) ---------- */
+.mat-frag{ aspect-ratio:1/1; background:var(--paper); position:relative; overflow:hidden; }
+.mat-frag svg{ width:76%; height:76%; position:absolute; left:12%; top:12%; overflow:visible; }
+.step-num{ font-family:'Archivo Black', sans-serif; line-height:.8; }
+.drop-cap::first-letter{ font-family:'Black Han Sans', sans-serif; float:left; font-size:4.6em; line-height:.82; margin:.06em .12em 0 0; padding:.08em .12em 0; background:var(--ink); color:var(--neon); }
+.marquee-num{ font-family:'Archivo Black', sans-serif; letter-spacing:-.04em; line-height:.85; }
+.reveal{ opacity:0; transform:translateY(40px); }
+@media (prefers-reduced-motion: reduce){ .reveal{ opacity:1; transform:none; } }
+
+[data-page][hidden]{ display:none !important; }
 </style>
 </head>
-
-<body class="min-h-screen">
-
-<!-- SVG defs: concrete grain filter -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <filter id="grain" x="-15%" y="-15%" width="130%" height="130%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n"/>
-      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.25 0 0 0 -0.5" result="spots"/>
-      <feComposite in="spots" in2="SourceGraphic" operator="in" result="s2"/>
-      <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="s2"/></feMerge>
-    </filter>
-  </defs>
-</svg>
-
-<!-- Accumulating cracks (설계 파괴의 흔적) -->
-<svg id="cracks" class="fixed inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
-
-<!-- Flash / breach FX -->
-<div id="flash" class="fixed inset-0 z-[90] hazard mix-blend-difference"></div>
-<div id="breach" class="fixed inset-0 z-[91] flex items-center justify-center font-kr text-[40vw] leading-none text-blood"></div>
+<body data-room="prologue">
+<div id="curtain" aria-hidden="true"><div class="c-title">우연을<br>레이어링하다</div><div class="c-edge"></div></div>
 
 <div id="app" class="relative z-10">
 
-  <!-- ===================== NAV ===================== -->
-  <nav class="flex items-stretch justify-between px-4 md:px-10 pt-5 gap-3">
-    <a href="#top" class="brk bg-ink text-neon font-disp text-lg md:text-xl px-3 py-2 -rotate-2 border-4 border-ink">CLE/01</a>
-    <div class="flex gap-2 md:gap-3 items-center">
-      <a href="#engine" class="btn-brut ghost text-xs md:text-sm px-3 py-2">ENGINE</a>
-      <a href="#archive" class="btn-brut ghost text-xs md:text-sm px-3 py-2">ARCHIVE <span id="navCount" class="font-mono">00</span></a>
-      <button id="soundBtn" class="btn-brut text-xs md:text-sm px-3 py-2">SOUND: ON</button>
+  <nav class="site-nav flex flex-wrap items-center justify-between gap-3 px-4 md:px-10 pt-5">
+    <a href="#/prologue" class="brk bg-ink text-neon font-kr text-lg md:text-xl px-3 py-2 -rotate-1 border-4 border-ink leading-none">우연을 레이어링하다</a>
+    <div class="flex flex-wrap gap-2 items-center">
+      <a href="#/prologue" class="nav-room" data-room-link="prologue">00 <b>서문</b></a>
+      <a href="#/machine" class="nav-room" data-room-link="machine">01 <b>기계</b></a>
+      <a href="#/archive" class="nav-room" data-room-link="archive">02 <b>보관소</b> <span data-archive-count>00</span></a>
+      <button data-sound-toggle class="btn-brut text-[11px] px-2 py-2">SOUND ON</button>
     </div>
   </nav>
 
-  <!-- ===================== HERO ===================== -->
-  <header id="top" class="relative px-4 md:px-10 pt-10 md:pt-14 pb-10 overflow-visible">
-    <!-- decor fragments (filled by JS) -->
-    <div class="brk deco absolute right-[6%] top-[4%] w-[28vw] max-w-[320px] opacity-90 hidden md:block" data-kind="steel"></div>
-    <div class="brk deco absolute left-[46%] top-[42%] w-[16vw] max-w-[200px] hidden md:block" data-kind="concrete"></div>
-    <div class="brk deco absolute right-[2%] bottom-[0%] w-[22vw] max-w-[260px] hidden lg:block" data-kind="type"></div>
-
-    <div class="relative">
-      <p class="brk font-mono text-xs md:text-sm mb-3 inline-block bg-neon border-4 border-ink px-2 py-1 rotate-1">FIG.00 — INTERACTIVE MANIFESTO / 2026</p>
-      <h1 class="font-kr leading-[.82] select-none">
-        <span class="brk inline-block bg-ink text-neon px-3 md:px-5 pt-2 -rotate-2 text-[19vw] md:text-[12vw]">우연을</span><br>
-        <span class="brk inline-block outline-text ml-[10vw] md:ml-[20vw] text-[19vw] md:text-[12vw] rotate-1">레이어딩</span><br>
-        <span class="brk inline-block bg-blood text-white px-3 md:px-5 pt-2 ml-[2vw] -mt-[2vw] rotate-[-4deg] text-[19vw] md:text-[12vw] border-[5px] border-ink shadow-[12px_12px_0_#0d0d0d]">하다</span>
+  <!-- =========================================================
+       PAGE 00 · 서문 / PROLOGUE
+       ========================================================= -->
+  <main data-page="prologue">
+  <!-- ============ I. HERO ============ -->
+  <header class="relative px-4 md:px-10 pt-12 md:pt-16 pb-20 min-h-[92vh] grid grid-cols-12 gap-x-6 gap-y-14 items-center">
+    <div class="col-span-12 lg:col-span-7 relative z-10">
+      <p class="brk plate inline-block bg-neon border-4 border-ink px-2 py-1 rotate-1">PL.00 — 서문 / Prologue</p>
+      <h1 class="font-kr leading-[.82] select-none mt-6" aria-label="우연을 레이어링하다">
+        <span class="brk inline-block bg-ink text-neon px-3 md:px-5 pt-2 -rotate-2 text-[19vw] lg:text-[10.5vw]">우연을</span><br>
+        <span class="brk inline-block outline-text ml-[8vw] lg:ml-[9vw] text-[19vw] lg:text-[10.5vw] rotate-1">레이어링</span><br>
+        <span class="brk inline-block bg-blood text-white px-3 md:px-5 pt-2 ml-[2vw] -mt-[2vw] rotate-[-4deg] text-[19vw] lg:text-[10.5vw] border-[5px] border-ink shadow-[12px_12px_0_#0d0d0d]">하다</span>
       </h1>
+      <p class="font-mono text-xs md:text-sm mt-8 tracking-widest">LAYERING CHANCE — AN INTERACTIVE COLLAGE MACHINE, 2026</p>
+
+      <p class="font-kr text-[26px] md:text-[34px] leading-[1.25] mt-8 max-w-xl">
+        설계는 결과를 약속한다.<br><span class="bg-ink text-neon px-2">이 작품은 그 약속을 지키지 않는다.</span>
+      </p>
+
+      <div class="flex flex-wrap gap-4 mt-10">
+        <a href="#/machine" class="btn-brut dark text-lg md:text-2xl px-6 md:px-8 py-4 md:py-5">기계 안으로 <span aria-hidden="true">→</span></a>
+        <a href="#/archive" class="btn-brut ghost text-sm md:text-base px-5 py-4">보관소 둘러보기</a>
+      </div>
     </div>
 
-
-    <a href="#engine" class="brk scroll-hint inline-flex items-center gap-2 mt-10 font-mono text-sm bg-ink text-neon px-3 py-2 -rotate-1">↓ 엔진으로 내려가 레버를 당겨라</a>
+    <!-- live plate: the page performs the work on its own -->
+    <div class="col-span-12 lg:col-span-5 relative">
+      <div class="brk absolute -top-5 left-6 z-20 bg-blood text-white plate px-2 py-1 border-[3px] border-ink -rotate-3">● LIVE</div>
+      <div class="bx bg-paper relative rotate-[1.5deg]">
+        <div id="livePlate" class="art"></div>
+      </div>
+      <p class="mt-6 font-mono text-[11px] leading-relaxed max-w-sm">
+        지금 이 화면에서 쌓이고 있는 우연. 저장되지 않으며, 다시 오지 않는다.<br>
+        <span class="bg-ink text-neon px-1">SEED <span id="liveSeed">——————</span></span>
+      </p>
+    </div>
   </header>
 
-  <!-- ===================== ENGINE ===================== -->
-  <section id="engine" class="relative px-4 md:px-10 pt-6 pb-24">
-    <div class="brk absolute left-4 md:left-10 -top-2 font-disp text-[16vw] md:text-[9vw] leading-none text-ink/10 select-none pointer-events-none">ENGINE</div>
+  <!-- ============ II. STATEMENT ============ -->
+  <section class="relative border-t-[6px] border-ink concrete-fill px-4 md:px-10 py-20 md:py-28">
+    <div class="grid grid-cols-12 gap-x-6 gap-y-10">
+      <div class="col-span-12 lg:col-span-3">
+        <p class="plate">01 / 작가노트</p>
+        <p class="font-disp text-4xl md:text-5xl leading-none mt-3">STATE<br>MENT</p>
+        <div class="hazard h-3 mt-6 w-32 border-y-4 border-ink"></div>
+      </div>
+
+      <div class="col-span-12 lg:col-span-6 text-[16px] md:text-[17px] leading-[1.95] space-y-6 reveal">
+        <p class="drop-cap">건축과 디자인은 오랫동안 그리드 위에서 사고해 왔다. 기둥의 간격, 글줄의 행간, 화면을 나누는 열(column)까지 — 모든 것은 미리 정해진 질서 안에 놓일 때 비로소 ‘완성’으로 인정받는다. 〈우연을 레이어링하다〉는 그 질서를 의도적으로 내려놓는 데서 출발한다.</p>
+        <p>화면에는 세 종류의 파편이 있다. 거푸집 자국이 남은 콘크리트 덩어리, 도면에서 떨어져 나온 철골의 선, 의미를 잃고 형태만 남은 문자. 기계가 작동하는 순간 파편들은 위치와 각도, 크기와 혼합 방식을 무작위로 부여받아 한 겹씩 내려앉는다. 무엇이 위에 놓이고 무엇이 가려질지는 아무도 결정하지 않는다.</p>
+        <p>브루탈리즘이 콘크리트의 날것(béton brut)을 감추지 않았듯, 이 작품은 우연의 결과를 다듬지 않는다. 해체주의가 구조의 내부를 드러냈듯, 완성된 콜라주는 언제든 층층이 분해되어 자신이 어떻게 만들어졌는지를 보여준다. 여기서 작품은 계획의 산물이 아니라 <b class="bg-neon px-1">사건의 기록</b>이다.</p>
+        <p>한 세기 전 장 아르프(Jean Arp)는 종이 조각을 떨어뜨려 그것이 떨어진 자리에 그대로 붙였다고 전해진다. 이 작품은 그 몸짓을 코드로 옮긴다. 손이 종이를 놓는 대신, 관람자의 손이 레버를 당긴다.</p>
+      </div>
+
+      <aside class="col-span-12 lg:col-span-3 lg:pt-40 reveal">
+        <blockquote class="brk bg-ink text-neon p-6 border-[5px] border-ink shadow-[10px_10px_0_#FF2B1C] -rotate-2">
+          <p class="font-kr text-2xl md:text-[28px] leading-snug">“작가는 규칙만을 설계했다. 작품을 완성하는 것은 레버를 당기는 당신의 손이다.”</p>
+        </blockquote>
+      </aside>
+    </div>
+
+    <div class="mt-16 flex flex-wrap gap-2 font-mono text-[11px] md:text-xs">
+      <span class="bg-ink text-[#efeee8] px-2 py-1">BRUTALISM</span>
+      <span class="border-[3px] border-ink px-2 py-[2px]">DECONSTRUCTION</span>
+      <span class="bg-blood text-white px-2 py-1">CHANCE OPERATION</span>
+      <span class="border-[3px] border-ink px-2 py-[2px]">LAYERING</span>
+      <span class="bg-neon px-2 py-1 border-[3px] border-ink">GENERATIVE COLLAGE</span>
+    </div>
+  </section>
+
+  <!-- ============ III. MATERIALS ============ -->
+  <section class="relative border-t-[6px] border-ink px-4 md:px-10 py-20 md:py-28">
+    <div class="flex flex-wrap items-end justify-between gap-6 mb-14">
+      <div>
+        <p class="plate">02 / 재료</p>
+        <h2 class="font-kr text-[14vw] md:text-[6.5vw] leading-[.9] mt-3">세 개의 <span class="outline-text">재료</span></h2>
+      </div>
+      <p class="max-w-md text-[15px] leading-[1.9]">작품은 세 계열, 열네 가지 유형의 파편으로만 이루어진다. 아래의 견본은 지금도 계속 새로 생성되고 있다.</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-10 md:gap-8">
+      <article class="reveal md:mt-0">
+        <div class="bx bg-paper -rotate-1"><div class="mat-frag" data-kind="concrete"></div></div>
+        <p class="plate mt-6">I · CONCRETE / 질량</p>
+        <h3 class="font-kr text-4xl mt-2">콘크리트</h3>
+        <p class="text-[15px] leading-[1.85] mt-3">거푸집의 흔적과 철근이 드러난 회색 덩어리. 화면에 무게를 싣고, 그 아래 놓인 것을 덮어버린다.</p>
+        <p class="font-mono text-[11px] mt-4 border-t-[3px] border-ink pt-3">타설 블록 · 파쇄 슬래브 · 적층 매스 · 노출 기둥</p>
+      </article>
+      <article class="reveal md:mt-20">
+        <div class="bx-red bg-paper rotate-1"><div class="mat-frag" data-kind="steel"></div></div>
+        <p class="plate mt-6">II · STEEL / 구조</p>
+        <h3 class="font-kr text-4xl mt-2">철골</h3>
+        <p class="text-[15px] leading-[1.85] mt-3">건물을 지탱하던 뼈대가 도면 밖으로 떨어져 나온 선. 질서의 기호이지만, 여기서는 아무것도 지탱하지 않는다.</p>
+        <p class="font-mono text-[11px] mt-4 border-t-[3px] border-ink pt-3">H형강 단면 · 트러스 · 브레이싱 · 캔틸레버 · 치수 도면</p>
+      </article>
+      <article class="reveal md:mt-8">
+        <div class="bx bg-paper -rotate-[2deg]"><div class="mat-frag" data-kind="type"></div></div>
+        <p class="plate mt-6">III · TYPE / 기호</p>
+        <h3 class="font-kr text-4xl mt-2">문자</h3>
+        <p class="text-[15px] leading-[1.85] mt-3">읽히기를 멈춘 글자. 잘리고 겹치고 미끄러지며, 의미 대신 형태로 화면에 개입한다.</p>
+        <p class="font-mono text-[11px] mt-4 border-t-[3px] border-ink pt-3">절단 글리프 · 아웃라인 · 수직 적층 · 라벨 · 글리치</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ IV. PROCESS ============ -->
+  <section class="relative border-t-[6px] border-ink bg-ink text-[#efeee8] px-4 md:px-10 py-20 md:py-28 overflow-hidden">
+    <p class="plate text-neon">03 / 과정</p>
+    <h2 class="font-kr text-[12vw] md:text-[5.6vw] leading-[.95] mt-3">한 점의 작품이<br><span class="outline-neon">태어나는</span> 다섯 단계</h2>
+
+    <ol class="mt-16 grid md:grid-cols-5 border-t-[3px] border-[#efeee8]/30">
+      <li class="reveal p-5 md:p-6 border-b-[3px] md:border-b-0 md:border-r-[3px] border-[#efeee8]/30">
+        <span class="step-num text-6xl text-neon">01</span>
+        <p class="font-kr text-2xl mt-4">투하 <span class="font-mono text-xs opacity-60">TRIGGER</span></p>
+        <p class="text-[14px] leading-[1.8] mt-3 opacity-85">레버를 당기거나, 화면을 거칠게 흔들거나, 캔버스를 빠르게 긁는다. 몸짓의 세기가 기계를 깨운다.</p>
+      </li>
+      <li class="reveal p-5 md:p-6 border-b-[3px] md:border-b-0 md:border-r-[3px] border-[#efeee8]/30 md:mt-10">
+        <span class="step-num text-6xl text-neon">02</span>
+        <p class="font-kr text-2xl mt-4">회전 <span class="font-mono text-xs opacity-60">SPIN</span></p>
+        <p class="text-[14px] leading-[1.8] mt-3 opacity-85">세 개의 릴이 각자의 재료를 고속으로 뒤섞는다. 이 순간까지 결과는 존재하지 않는다.</p>
+      </li>
+      <li class="reveal p-5 md:p-6 border-b-[3px] md:border-b-0 md:border-r-[3px] border-[#efeee8]/30 md:mt-4">
+        <span class="step-num text-6xl text-blood">03</span>
+        <p class="font-kr text-2xl mt-4">중첩 <span class="font-mono text-xs opacity-60">LAYER</span></p>
+        <p class="text-[14px] leading-[1.8] mt-3 opacity-85">여섯에서 열한 개의 파편이 무작위의 좌표와 각도, 혼합 값을 받아 한 겹씩 내려앉는다.</p>
+      </li>
+      <li class="reveal p-5 md:p-6 border-b-[3px] md:border-b-0 md:border-r-[3px] border-[#efeee8]/30 md:mt-14">
+        <span class="step-num text-6xl text-neon">04</span>
+        <p class="font-kr text-2xl mt-4">고정 <span class="font-mono text-xs opacity-60">FIX</span></p>
+        <p class="text-[14px] leading-[1.8] mt-3 opacity-85">회전이 멈추는 순간, 그 배열은 다시 오지 않는 한 점의 작품으로 고정된다.</p>
+      </li>
+      <li class="reveal p-5 md:p-6 md:mt-6">
+        <span class="step-num text-6xl text-neon">05</span>
+        <p class="font-kr text-2xl mt-4">기록 <span class="font-mono text-xs opacity-60">ARCHIVE</span></p>
+        <p class="text-[14px] leading-[1.8] mt-3 opacity-85">작품은 고유 번호와 시드를 받아 보관소에 걸리고, 언제든 분해되어 자신의 구조를 드러낸다.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ============ V. NUMBERS ============ -->
+  <section class="relative border-t-[6px] border-ink px-4 md:px-10 py-20 md:py-28">
+    <p class="plate">04 / 경우의 수</p>
+    <p id="seedCount" class="marquee-num text-[10.5vw] md:text-[8.4vw] mt-4 whitespace-nowrap">0</p>
+    <div class="grid grid-cols-12 gap-6 mt-8">
+      <p class="col-span-12 md:col-span-5 text-[16px] leading-[1.9] reveal">
+        기계가 가질 수 있는 시드(seed)의 수. 하나의 시드는 하나의 작품을 정확히 재현한다.
+        같은 작품을 다시 만날 확률은 약 <b class="bg-neon px-1">43억 분의 1</b> — 당신이 만드는 작품은, 사실상 처음이자 마지막이다.
+      </p>
+      <dl class="col-span-12 md:col-span-6 md:col-start-7 grid grid-cols-2 sm:grid-cols-4 gap-3 reveal">
+        <div class="bx bg-[#efeee8] p-3"><dt class="font-mono text-[10px]">재료 계열</dt><dd class="font-disp text-4xl mt-1">3</dd></div>
+        <div class="bx bg-neon p-3 rotate-1"><dt class="font-mono text-[10px]">파편 유형</dt><dd class="font-disp text-4xl mt-1">14</dd></div>
+        <div class="bx bg-[#efeee8] p-3"><dt class="font-mono text-[10px]">작품당 레이어</dt><dd class="font-disp text-4xl mt-1">6–11</dd></div>
+        <div class="bx-red bg-[#efeee8] p-3 -rotate-1"><dt class="font-mono text-[10px]">혼합 방식</dt><dd class="font-disp text-4xl mt-1">6</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ============ VI. COLOPHON ============ -->
+  <section class="relative border-t-[6px] border-ink concrete-fill px-4 md:px-10 py-20">
+    <div class="grid grid-cols-12 gap-6">
+      <div class="col-span-12 md:col-span-3">
+        <p class="plate">05 / 작품 정보</p>
+        <p class="font-disp text-4xl leading-none mt-3">COLO<br>PHON</p>
+      </div>
+      <dl class="col-span-12 md:col-span-8 md:col-start-5 border-t-4 border-ink reveal">
+        <div class="grid grid-cols-[7rem_1fr] md:grid-cols-[10rem_1fr] gap-4 py-3 border-b-[3px] border-ink"><dt class="font-mono text-xs pt-1">작품명</dt><dd class="font-kr text-xl">우연을 레이어링하다 <span class="font-mono text-xs">Layering Chance</span></dd></div>
+        <div class="grid grid-cols-[7rem_1fr] md:grid-cols-[10rem_1fr] gap-4 py-3 border-b-[3px] border-ink"><dt class="font-mono text-xs pt-1">형식</dt><dd>인터랙티브 웹, 생성형 콜라주</dd></div>
+        <div class="grid grid-cols-[7rem_1fr] md:grid-cols-[10rem_1fr] gap-4 py-3 border-b-[3px] border-ink"><dt class="font-mono text-xs pt-1">구성</dt><dd>00 서문 · 01 기계 · 02 보관소</dd></div>
+        <div class="grid grid-cols-[7rem_1fr] md:grid-cols-[10rem_1fr] gap-4 py-3 border-b-[3px] border-ink"><dt class="font-mono text-xs pt-1">제작</dt><dd>2026</dd></div>
+        <div class="grid grid-cols-[7rem_1fr] md:grid-cols-[10rem_1fr] gap-4 py-3 border-b-[3px] border-ink"><dt class="font-mono text-xs pt-1">작가</dt><dd>윤현지</dd></div>
+        <div class="grid grid-cols-[7rem_1fr] md:grid-cols-[10rem_1fr] gap-4 py-3 border-b-[3px] border-ink"><dt class="font-mono text-xs pt-1">기술</dt><dd>HTML · CSS · JavaScript · Tailwind CSS · GSAP · Web Audio API</dd></div>
+        <div class="grid grid-cols-[7rem_1fr] md:grid-cols-[10rem_1fr] gap-4 py-3 border-b-[3px] border-ink"><dt class="font-mono text-xs pt-1">비고</dt><dd class="leading-relaxed">모든 이미지는 외부 파일 없이 코드로 실시간 생성된다. 기록된 작품은 관람자의 브라우저 안에만 보관된다.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ============ VII. ENTRY ============ -->
+  <section class="relative border-t-[6px] border-ink">
+    <div class="hazard h-5 border-b-[5px] border-ink"></div>
+    <a href="#/machine" class="group block bg-ink text-[#efeee8] px-4 md:px-10 py-20 md:py-28 hover:bg-blood transition-colors">
+      <p class="plate text-neon group-hover:text-white">ENTER / 입장</p>
+      <p class="font-kr text-[15vw] md:text-[9vw] leading-[.9] mt-4">레버는<br>당신 앞에 있다 <span class="inline-block transition-transform group-hover:translate-x-6">→</span></p>
+      <p class="font-mono text-xs md:text-sm mt-8 opacity-80">다음 한 점은 아직 존재하지 않는다. · 지금까지 <span data-archive-count>00</span>점의 우연이 기록되었다.</p>
+    </a>
+  </section>
+  </main>
+
+  <!-- =========================================================
+       PAGE 01 · 기계 / THE MACHINE
+       ========================================================= -->
+  <main data-page="machine" hidden>
+  <section id="engine" class="relative px-4 md:px-10 pt-10 pb-24">
+    <div class="brk absolute right-4 md:right-10 top-2 font-disp text-[18vw] md:text-[10vw] leading-none text-ink/10 select-none pointer-events-none">MACHINE</div>
+
+    <div class="relative flex flex-wrap items-end gap-x-8 gap-y-3 mb-12">
+      <div>
+        <p class="brk plate inline-block bg-neon border-4 border-ink px-2 py-1 rotate-1">PL.01 — 기계 / The Machine</p>
+        <h1 class="font-kr text-[13vw] md:text-[5.6vw] leading-[.9] mt-4">당기고, <span class="outline-text">흔들고,</span> <span class="bg-blood text-white px-2 inline-block -rotate-2 border-4 border-ink">긁어라.</span></h1>
+      </div>
+      <p class="font-mono text-xs md:text-sm max-w-xs pb-2">무엇이 쌓일지는<br>기계도 모른다.</p>
+    </div>
 
     <div class="grid grid-cols-12 gap-x-6 gap-y-14 relative">
 
-      <!-- OUTPUT STAGE -->
+      <!-- STAGE -->
       <div class="col-span-12 lg:col-span-7 relative">
-        <div class="brk absolute -top-5 left-6 z-20 bg-neon border-4 border-ink px-3 py-1 font-mono text-xs -rotate-3">OUTPUT / 콜라주 캔버스</div>
-        <div class="brk absolute -right-3 top-10 z-20 bg-ink text-white font-mono text-[10px] px-2 py-1 rotate-90 origin-right hidden md:block">DRAG FAST = TRIGGER</div>
+        <div class="brk absolute -top-5 left-6 z-20 bg-ink text-neon border-4 border-ink px-3 py-1 plate -rotate-3">PLATE</div>
 
         <div id="stageWrap" class="bx bg-paper relative">
           <div id="stage" class="art">
             <div class="art-inner"><div class="art-grid"></div></div>
             <div class="art-noise"></div>
           </div>
-          <!-- first-time hint -->
           <div id="stageHint" class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
             <div class="font-kr text-[11vw] md:text-[6vw] leading-none -rotate-3">레버를<br><span class="bg-ink text-neon px-2">당겨라</span></div>
-            <div class="font-mono text-xs mt-4 bg-[#efeee8] border-[3px] border-ink px-2 py-1 rotate-1">PULL THE LEVER · SHAKE THE SCROLL · PRESS SPACE</div>
+            <div class="font-mono text-xs mt-4 bg-[#efeee8] border-[3px] border-ink px-2 py-1 rotate-1">빈 판 위에 아직 아무것도 쌓이지 않았다</div>
           </div>
           <div id="spinLabel" class="hidden absolute top-3 right-3 z-20 bg-blood text-white font-mono text-xs px-2 py-1 border-[3px] border-ink spin-label">● LAYERING…</div>
         </div>
@@ -301,20 +469,20 @@
         <div class="mt-6 flex flex-wrap items-start gap-3">
           <div id="currentTitle" class="brk font-kr text-2xl md:text-3xl bg-[#efeee8] border-4 border-ink px-3 py-1 -rotate-1">— 아직 완성된 작품 없음 —</div>
           <button id="dissectBtn" class="btn-brut text-xs px-3 py-2 rotate-1 hidden">해부하기 ↗</button>
+          <a id="toArchive" href="#/archive" class="btn-brut ghost text-xs px-3 py-2 -rotate-1 hidden">보관소에 걸린 작품 →</a>
         </div>
       </div>
 
       <!-- MACHINE -->
-      <div class="col-span-12 lg:col-span-5 lg:mt-24 relative">
+      <div class="col-span-12 lg:col-span-5 lg:mt-16 relative">
         <div class="brk absolute -top-6 -right-2 z-20 bg-blood text-white border-4 border-ink px-3 py-1 font-disp text-sm rotate-3">MODEL 破-01</div>
 
         <div id="machine" class="concrete-fill bx-red relative">
           <div class="hazard h-5 border-b-[5px] border-ink"></div>
           <div class="flex items-stretch">
-            <!-- reels + controls -->
             <div class="flex-1 p-4 md:p-5 min-w-0">
               <div class="flex items-end justify-between mb-3 gap-2">
-                <h2 class="font-disp text-xl md:text-2xl leading-none">CHANCE<br>LAYERING<br><span class="bg-ink text-neon px-1">ENGINE</span></h2>
+                <h2 class="font-disp text-xl md:text-2xl leading-none">CHANCE<br>LAYERING<br><span class="bg-ink text-neon px-1">MACHINE</span></h2>
                 <div class="font-mono text-[10px] text-right leading-tight">REELS ×3<br>FRAGMENTS ×14<br>SEED: <span id="seedLbl">--------</span></div>
               </div>
 
@@ -333,22 +501,25 @@
                 </div>
               </div>
 
-              <!-- LCD -->
               <div class="mt-7 bg-ink text-neon font-mono text-xs p-3 border-4 border-ink min-h-[64px]">
                 <div class="opacity-60">STATUS //</div>
-                <div id="status">IDLE — 레버를 당기거나, 스크롤을 급격히 흔들어라.</div>
+                <div id="status">IDLE — 기계는 당신의 몸짓을 기다리고 있다.</div>
               </div>
 
-              <!-- shake meter -->
               <div class="mt-4">
-                <div class="flex justify-between font-mono text-[10px] mb-1"><span>SHAKE METER · 스크롤/드래그 속도</span><span id="meterPct">0%</span></div>
+                <div class="flex justify-between font-mono text-[10px] mb-1"><span>SHAKE · 흔들림의 세기</span><span id="meterPct">0%</span></div>
                 <div class="meter"><div id="meterFill" class="meter-fill"></div></div>
               </div>
 
               <button id="pullBtn" class="btn-brut w-full mt-5 py-3 text-base md:text-lg">▼ 우연 투하 <span class="font-mono text-xs">[SPACE]</span></button>
+
+              <div class="mt-4 flex flex-wrap gap-1 font-mono text-[10px]">
+                <span class="bg-ink text-white px-1.5 py-0.5">PULL 레버</span>
+                <span class="bg-ink text-white px-1.5 py-0.5">SHAKE 스크롤</span>
+                <span class="bg-ink text-white px-1.5 py-0.5">SCRATCH 드래그</span>
+              </div>
             </div>
 
-            <!-- lever -->
             <div class="lever-house concrete-dark border-l-[5px] border-ink" id="leverHouse" aria-label="레버">
               <div class="font-mono text-[10px] text-neon mb-8 tracking-widest">PULL ↓</div>
               <div class="lever-track" id="leverTrack">
@@ -366,64 +537,63 @@
           </div>
           <div class="hazard-red h-3 border-t-[5px] border-ink"></div>
         </div>
-
-        <div class="brk mt-8 ml-auto w-fit bg-[#efeee8] border-4 border-ink p-3 font-mono text-[11px] leading-relaxed -rotate-1 max-w-xs">
-          ① 레버를 끝까지 끌어내리거나 클릭<br>
-          ② 마우스 휠 / 트랙패드를 급격히 흔들기<br>
-          ③ 캔버스 위에서 빠르게 드래그<br>
-          → 파편이 회전하며 쌓이고, 멈추는 순간 하나의 작품으로 <b class="bg-neon px-1">고정</b>된다.
-        </div>
       </div>
     </div>
   </section>
+  </main>
 
-  <!-- ===================== ARCHIVE ===================== -->
-  <section id="archive" class="relative px-4 md:px-10 pb-28 pt-10 border-t-[6px] border-ink bg-[#b9b7b0]/40">
-    <div class="flex flex-wrap items-end gap-4 mb-8">
-      <h2 class="brk font-kr text-[14vw] md:text-[7vw] leading-[.85]">우연<span class="outline-text">보관소</span></h2>
-      <div class="brk font-mono text-xs bg-ink text-neon px-2 py-1 mb-3 rotate-2">ARCHIVE OF ACCIDENTS · <span id="archCount">0</span> WORKS</div>
+  <!-- =========================================================
+       PAGE 02 · 보관소 / ARCHIVE
+       ========================================================= -->
+  <main data-page="archive" hidden>
+  <section class="relative px-4 md:px-10 pt-12 pb-28">
+    <div class="grid grid-cols-12 gap-6 items-end mb-12">
+      <div class="col-span-12 lg:col-span-8">
+        <p class="brk plate inline-block bg-neon border-4 border-ink px-2 py-1 rotate-1">PL.02 — 보관소 / Archive</p>
+        <h1 class="brk font-kr text-[19vw] md:text-[10vw] leading-[.85] mt-5">우연<span class="outline-text">보관소</span></h1>
+      </div>
+      <div class="col-span-12 lg:col-span-4 lg:pb-4">
+        <p class="text-[15px] leading-[1.9]">기계가 멈출 때마다 한 점씩 이곳에 걸린다. 같은 판은 두 번 오지 않지만, 모든 작품은 시드 하나로 다시 태어날 수 있다.</p>
+        <p class="font-mono text-xs mt-4 bg-ink text-neon inline-block px-2 py-1">ARCHIVE OF ACCIDENTS · <span id="archCount">0</span> WORKS</p>
+      </div>
     </div>
 
-    <div id="filters" class="flex flex-wrap gap-3 mb-12"></div>
+    <div id="filters" class="flex flex-wrap gap-3 mb-14 pb-6 border-b-[5px] border-ink"></div>
 
     <div id="grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10 md:gap-x-10 md:gap-y-14"></div>
 
-    <div id="emptyState" class="hidden bx bg-[#efeee8] p-8 max-w-xl -rotate-1">
-      <p class="font-kr text-3xl">아직 쌓인 우연이 없다.</p>
-      <p class="font-mono text-sm mt-2">엔진으로 올라가 레버를 당기면 작품이 이곳에 쌓인다.</p>
+    <div id="emptyState" class="hidden">
+      <div class="bx bg-[#efeee8] p-8 md:p-10 max-w-xl -rotate-1">
+        <p class="font-kr text-3xl md:text-4xl leading-tight">아직 이 벽에는<br>아무것도 걸리지 않았다.</p>
+        <p class="text-[15px] mt-3">첫 번째 우연은 기계 안에서 시작된다.</p>
+        <a href="#/machine" class="btn-brut dark text-base px-5 py-3 mt-6">기계 안으로 →</a>
+      </div>
     </div>
 
-    <div class="mt-16 flex flex-wrap gap-3">
+    <div class="mt-20">
       <button id="clearBtn" class="btn-brut ghost text-xs px-3 py-2">보관소 비우기</button>
     </div>
   </section>
+  </main>
 
-  <footer class="bg-ink text-[#efeee8] px-4 md:px-10 py-10 font-mono text-xs flex flex-wrap justify-between gap-4 border-t-[6px] border-neon">
-    <div><span class="font-kr text-2xl text-neon">우연을 레이어딩하다</span><br>CHANCE LAYERING ENGINE · BRUTALIST / DECONSTRUCTIVIST WEB</div>
-    <div class="text-right">NO GRID. NO PLAN. NO UNDO.<br>모든 작품은 시드(seed) 하나로 재현된다.</div>
+  <footer class="bg-ink text-[#efeee8] px-4 md:px-10 py-8 font-mono text-[11px] flex flex-wrap justify-between gap-3 border-t-[6px] border-neon">
+    <span>우연을 레이어링하다 · Layering Chance, 2026</span>
+    <span>NO GRID. NO PLAN. NO UNDO.</span>
   </footer>
 </div>
 
-<!-- ===================== MODAL ===================== -->
-<div id="modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-8" role="dialog" aria-modal="true" aria-labelledby="mTitle">
-  <div id="modalOverlay" class="absolute inset-0"></div>
-  <div id="modalBox" class="relative w-full max-w-6xl concrete-fill border-[6px] border-ink shadow-[16px_16px_0_#FF2B1C] overflow-y-auto scrollbar-brut">
-    <div class="hazard h-4 border-b-[5px] border-ink sticky top-0 z-30"></div>
-    <button id="modalClose" class="btn-brut absolute top-7 right-4 z-30 w-12 h-12 text-2xl leading-none bg-blood text-white" aria-label="닫기">✕</button>
-    <div id="modalBody"></div>
-  </div>
-</div>
-
 <script>
+/* =========================================================
+   우연을 레이어링하다 — Layering Chance
+   core.js : shared engine (fragments, art, archive, sound,
+             detail modal, page transitions, grid-breaking FX)
+   ========================================================= */
 (() => {
 'use strict';
 
-/* =========================================================
-   0. UTILITIES & CONSTANTS
-   ========================================================= */
+/* ---------- 0. utilities ---------- */
 const $  = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
-
 function mulberry32(a){
   return function(){
     a |= 0; a = a + 0x6D2B79F5 | 0;
@@ -444,6 +614,10 @@ const wpick = (r, pairs) => {
 const pad = (n, l = 4) => String(n).padStart(l, '0');
 const f1 = n => (+n).toFixed(1);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+};
 let UID = 0;
 
 const C = {
@@ -458,19 +632,17 @@ function shade(hex, f){
 }
 const contrast = c => [C.ink, C.red, C.g3, C.g4].includes(c) ? C.neon : C.ink;
 
-const KO = ['우','연','레','이','어','딩','파','편','층','붕','괴','틈','겹','잔'];
+const KO = ['우','연','레','이','어','링','파','편','층','붕','괴','틈','겹','잔'];
 const EN = ['CHANCE','LAYER','RAW','NO GRID','ERROR','RANDOM','CONCRETE','DEBRIS','VOID','#07','0.37','UNPLAN','RUPTURE'];
 
 const KINDS = {
-  concrete:{ ko:'콘크리트 블록',   en:'CONCRETE', variants:['타설 블록','파쇄 슬래브','적층 매스','노출 기둥'] },
-  steel:   { ko:'구조 철골 드로잉', en:'STEEL',    variants:['H형강 단면','트러스 드로잉','브레이싱 프레임','캔틸레버','치수 도면'] },
-  type:    { ko:'해체 타이포그래피', en:'TYPE',     variants:['절단 글리프','아웃라인 워드','수직 적층 문자','라벨 테이프','글리치 슬라이스'] },
+  concrete:{ ko:'콘크리트',   en:'CONCRETE', variants:['타설 블록','파쇄 슬래브','적층 매스','노출 기둥'] },
+  steel:   { ko:'철골',       en:'STEEL',    variants:['H형강 단면','트러스 드로잉','브레이싱 프레임','캔틸레버','치수 도면'] },
+  type:    { ko:'문자',       en:'TYPE',     variants:['절단 글리프','아웃라인 워드','수직 적층 문자','라벨 테이프','글리치 슬라이스'] },
 };
-const DOM_LABEL = { all:'전체 ALL', concrete:'콘크리트 지배', steel:'철골 지배', type:'타이포 지배', hybrid:'혼성 HYBRID' };
+const DOM_LABEL = { all:'전체', concrete:'콘크리트 지배', steel:'철골 지배', type:'문자 지배', hybrid:'혼성' };
 
-/* =========================================================
-   1. FRAGMENT GENERATORS (procedural SVG)
-   ========================================================= */
+/* ---------- 1. fragment generators (procedural SVG) ---------- */
 const wrapSVG = (inner, grain) =>
   `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">${grain ? `<g filter="url(#grain)">${inner}</g>` : inner}</svg>`;
 
@@ -478,13 +650,13 @@ function svgConcrete(s, v, c, lite){
   const r = mulberry32(s);
   const st = `stroke="${C.ink}" stroke-width="4"`;
   let b = '';
-  if (v === 0){ // 타설 블록 — formwork & tie holes
+  if (v === 0){
     b += `<rect x="12" y="34" width="176" height="132" fill="${c}" ${st}/>`;
     for (let i = 1; i < 4; i++) b += `<line x1="14" x2="186" y1="${34 + i * 33}" y2="${34 + i * 33}" stroke="#0004" stroke-width="2"/>`;
     for (let ix = 0; ix < 3; ix++) for (let iy = 0; iy < 2; iy++)
       b += `<circle cx="${45 + ix * 55}" cy="${67 + iy * 66}" r="6" fill="#0007"/>`;
-    b += `<rect x="12" y="34" width="${R(r,30,80)}" height="10" fill="${C.ink}"/>`;
-  } else if (v === 1){ // 파쇄 슬래브 — jagged slab, crack, rebar
+    b += `<rect x="12" y="34" width="${f1(R(r,30,80))}" height="10" fill="${C.ink}"/>`;
+  } else if (v === 1){
     const n = RI(r, 9, 14), pts = [];
     for (let i = 0; i < n; i++){
       const a = i / n * Math.PI * 2, rad = R(r, 55, 92);
@@ -498,7 +670,7 @@ function svgConcrete(s, v, c, lite){
       const px = R(r, 50, 150), py = R(r, 150, 165);
       b += `<line x1="${f1(px)}" y1="${f1(py)}" x2="${f1(px + R(r,-22,22))}" y2="${f1(R(r,186,200))}" stroke="${C.red}" stroke-width="3.5"/>`;
     }
-  } else if (v === 2){ // 적층 매스 — stacked blocks
+  } else if (v === 2){
     let y = 186;
     const k = RI(r, 3, 4);
     for (let i = 0; i < k; i++){
@@ -507,7 +679,7 @@ function svgConcrete(s, v, c, lite){
       b += `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" fill="${i % 2 ? shade(c, .82) : c}" ${st}/>`;
       if (r() < .6) b += `<rect x="${f1(x + w * .1)}" y="${f1(y + h * .35)}" width="${f1(w * .18)}" height="${f1(h * .3)}" fill="${C.ink}"/>`;
     }
-  } else { // 노출 기둥 — exposed column with rebar
+  } else {
     b += `<rect x="68" y="34" width="64" height="146" fill="${c}" ${st}/>`;
     b += `<rect x="46" y="18" width="108" height="22" fill="${shade(c,.85)}" ${st}/>`;
     b += `<rect x="54" y="176" width="92" height="16" fill="${shade(c,.75)}" ${st}/>`;
@@ -528,11 +700,11 @@ function svgSteel(s, v, c){
   const T = (x, y, t, size = 12, anchor = 'middle', rot = 0) =>
     `<text x="${x}" y="${y}" font-family="'Space Mono',monospace" font-weight="700" font-size="${size}" fill="${c}" text-anchor="${anchor}"${rot ? ` transform="rotate(${rot} ${x} ${y})"` : ''}>${t}</text>`;
   let b = '';
-  if (v === 0){ // H-beam section
+  if (v === 0){
     b += `<path d="M30 30H170V56H112V144H170V170H30V144H88V56H30Z" fill="${c}" stroke="${C.ink}" stroke-width="3"/>`;
     b += L(186, 30, 186, 170, 1.5) + L(180, 30, 192, 30, 1.5) + L(180, 170, 192, 170, 1.5);
     b += T(196, 100, `H-${RI(r,2,6)}00×200`, 11, 'middle', 90);
-  } else if (v === 1){ // truss
+  } else if (v === 1){
     b += L(4, 62, 196, 62) + L(4, 140, 196, 140);
     for (let x = 4, i = 0; x < 190; x += 32, i++){
       b += L(x, 62, x, 140, sw * .6);
@@ -540,7 +712,7 @@ function svgSteel(s, v, c){
       b += `<circle cx="${x}" cy="62" r="4" fill="${c}"/><circle cx="${x}" cy="140" r="4" fill="${c}"/>`;
     }
     b += T(100, 172, `TRUSS T-${RI(r,10,99)} / SPAN ${RI(r,12,40)}M`, 10);
-  } else if (v === 2){ // braced frame
+  } else if (v === 2){
     b += `<rect x="20" y="20" width="160" height="160" fill="none" stroke="${c}" stroke-width="${sw}"/>`;
     b += L(100, 20, 100, 180, sw * .7) + L(20, 100, 180, 100, sw * .7);
     const cx = pick(r, [20, 100]), cy = pick(r, [20, 100]);
@@ -548,14 +720,14 @@ function svgSteel(s, v, c){
     [[20,20],[100,20],[180,20],[20,100],[100,100],[180,100],[20,180],[100,180],[180,180]]
       .forEach(([x, y]) => b += `<rect x="${x - 6}" y="${y - 6}" width="12" height="12" fill="${c}"/>`);
     b += T(24, 14, `BR-0${RI(r,1,9)}`, 10, 'start');
-  } else if (v === 3){ // cantilever
+  } else if (v === 3){
     b += `<rect x="30" y="20" width="18" height="170" fill="${c}"/>`;
     b += `<rect x="30" y="32" width="166" height="14" fill="${c}"/>`;
     b += L(48, 130, 186, 46, sw * .6);
     b += `<line x1="168" y1="46" x2="168" y2="126" stroke="${c}" stroke-width="2" stroke-dasharray="5 4"/>`;
     b += `<path d="M168 126 q0 12 -10 12 q-8 0 -8 -8" fill="none" stroke="${c}" stroke-width="4"/>`;
     for (let i = 0; i < 9; i++) b += L(6 + i * 10, 198, 16 + i * 10, 188, 1.6, C.ink);
-  } else { // dimension drawing
+  } else {
     b += L(20, 40, 180, 40, 1.6) + L(20, 30, 20, 50, 1.6) + L(180, 30, 180, 50, 1.6);
     b += T(100, 30, String(RI(r, 30, 90) * 100), 13);
     b += L(28, 60, 28, 186, 1.6) + L(18, 60, 38, 60, 1.6) + L(18, 186, 38, 186, 1.6);
@@ -575,16 +747,16 @@ function svgType(s, v, c){
   const KR = `font-family="'Black Han Sans',sans-serif"`;
   const AB = `font-family="'Archivo Black',sans-serif"`;
   let b = '';
-  if (v === 0){ // 절단 글리프
+  if (v === 0){
     const poly = pick(r, ['0,0 200,0 200,112 0,92', '0,0 116,0 90,200 0,200', '0,64 200,0 200,200 0,200', '30,0 200,0 200,200 120,200']);
     b += `<defs><clipPath id="${id}"><polygon points="${poly}"/></clipPath></defs>`;
     b += `<text x="${f1(100 + R(r,-14,14))}" y="176" font-size="200" text-anchor="middle" ${KR} fill="none" stroke="${alt}" stroke-width="2" stroke-dasharray="6 5">${ko}</text>`;
     b += `<text x="100" y="176" font-size="200" text-anchor="middle" ${KR} fill="${c}" clip-path="url(#${id})">${ko}</text>`;
-  } else if (v === 1){ // 아웃라인 워드
+  } else if (v === 1){
     b += `<text x="100" y="124" font-size="72" text-anchor="middle" textLength="192" lengthAdjust="spacingAndGlyphs" ${AB} fill="none" stroke="${c}" stroke-width="3">${en}</text>`;
     b += `<rect x="4" y="134" width="${f1(R(r,60,190))}" height="10" fill="${c}"/>`;
     b += `<text x="4" y="66" font-family="'Space Mono',monospace" font-size="11" fill="${c}">FIG.${RI(r,10,99)} ─ ${ko}</text>`;
-  } else if (v === 2){ // 수직 적층 문자
+  } else if (v === 2){
     const n = RI(r, 3, 4);
     for (let i = 0; i < n; i++){
       const ch = pick(r, KO), x = f1(100 + R(r, -30, 30)), y = 8 + (i + 1) * (186 / n);
@@ -592,13 +764,13 @@ function svgType(s, v, c){
         ? `<text x="${x}" y="${f1(y)}" font-size="${f1(186 / n)}" text-anchor="middle" ${KR} fill="none" stroke="${c}" stroke-width="2.5">${ch}</text>`
         : `<text x="${x}" y="${f1(y)}" font-size="${f1(186 / n)}" text-anchor="middle" ${KR} fill="${c}">${ch}</text>`;
     }
-  } else if (v === 3){ // 라벨 테이프
+  } else if (v === 3){
     const tc = contrast(c);
     b += `<rect x="6" y="66" width="188" height="66" fill="${c}" stroke="${C.ink}" stroke-width="3"/>`;
     b += `<text x="100" y="114" font-size="44" text-anchor="middle" textLength="168" lengthAdjust="spacingAndGlyphs" ${AB} fill="${tc}">${en}</text>`;
     b += `<text x="10" y="60" font-family="'Space Mono',monospace" font-weight="700" font-size="11" fill="${C.ink}">NO.${RI(r,100,999)} / ${ko}</text>`;
     for (let i = 0, x = 10; i < 26 && x < 190; i++){ const w = RI(r, 1, 4); b += `<rect x="${x}" y="140" width="${w}" height="${RI(r,14,26)}" fill="${C.ink}"/>`; x += w + RI(r, 2, 5); }
-  } else { // 글리치 슬라이스
+  } else {
     const cut = f1(R(r, 88, 116)), off = f1(R(r, 10, 34) * (r() < .5 ? -1 : 1));
     b += `<defs><clipPath id="${id}t"><rect x="-40" y="0" width="280" height="${cut}"/></clipPath><clipPath id="${id}b"><rect x="-40" y="${cut}" width="280" height="200"/></clipPath></defs>`;
     const txt = `font-size="86" text-anchor="middle" textLength="186" lengthAdjust="spacingAndGlyphs" ${AB}`;
@@ -615,9 +787,7 @@ function fragSVG(l, lite){
   return svgType(l.s, l.v, l.color);
 }
 
-/* =========================================================
-   2. ART GENERATION (seeded → deterministic & re-renderable)
-   ========================================================= */
+/* ---------- 2. art generation (seeded, reproducible) ---------- */
 function makeLayer(r, kind){
   const v = Math.floor(r() * KINDS[kind].variants.length);
   let color;
@@ -635,6 +805,7 @@ function makeLayer(r, kind){
     op: r() < .12 ? .78 : 1,
   };
 }
+const randLayer = kind => makeLayer(mulberry32((Math.random() * 1e9) | 0), kind);
 
 function generateArt(seed){
   const r = mulberry32(seed);
@@ -651,7 +822,6 @@ function generateArt(seed){
   }
   const bg = wpick(r, [['#d9d7cf',5],['#bfbdb5',3],['#ecebe4',1.6],[C.neon,.9],['#1b1b1a',.6]]);
   const gs = pick(r, [8, 10, 12.5, 20]);
-  // grid torn by a random polygon — the "broken" orthogonal order
   const cut = [
     `0% 0%`, `${RI(r,20,80)}% 0%`, `${RI(r,40,100)}% ${RI(r,10,60)}%`,
     `100% ${RI(r,40,100)}%`, `${RI(r,0,60)}% 100%`, `0% ${RI(r,30,90)}%`,
@@ -673,13 +843,7 @@ function analyze(art){
   }, 0) / n;
   const density = art.layers.reduce((a, l) => a + Math.pow(l.w * l.sc, 2), 0) / 100;
   const blends = art.layers.filter(l => l.blend !== 'normal').length;
-  return {
-    cnt, n, dominant,
-    entropy: Math.round(entropy * 100),
-    collapse: Math.round(dev * 100),
-    density: Math.round(density),
-    blends,
-  };
+  return { cnt, n, dominant, entropy: Math.round(entropy * 100), collapse: Math.round(dev * 100), density: Math.round(density), blends };
 }
 
 function makeTitle(seed, id){
@@ -717,9 +881,7 @@ function critique(a){
   return `${lead} ${col} ${den} ${bl}`;
 }
 
-/* =========================================================
-   3. RENDERING
-   ========================================================= */
+/* ---------- 3. rendering ---------- */
 function layerHTML(l, i, lite){
   const left = l.x - l.w / 2, top = l.y - l.w / 2;
   const label = `L${pad(i + 1, 2)} · ${KINDS[l.kind].en}`;
@@ -732,35 +894,27 @@ function artInnerHTML(art, lite){
   return `<div class="art-inner">${grid}${art.layers.map((l, i) => layerHTML(l, i, lite)).join('')}</div><div class="art-noise"></div>`;
 }
 
-/* =========================================================
-   4. STATE & PERSISTENCE
-   ========================================================= */
+/* ---------- 4. archive (shared by every room via localStorage) ---------- */
 const KEY = 'chance-layering-archive-v1';
-function loadArchive(){
-  try { const a = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(a) ? a : []; }
-  catch (e) { return []; }
-}
-function saveArchive(){
-  try { localStorage.setItem(KEY, JSON.stringify(ARCHIVE.slice(0, 80))); } catch (e) {}
-}
-let ARCHIVE = loadArchive();               // [{id, seed, t}]  newest first
-let counter = ARCHIVE.reduce((m, e) => Math.max(m, e.id), 0);
-let current = null;
-let spinning = false;
-let modalOpen = false;
-let filter = 'all';
+const archive = {
+  list(){ const a = store.get(KEY, []); return Array.isArray(a) ? a : []; },
+  save(list){ store.set(KEY, list.slice(0, 80)); },
+  nextId(){ return this.list().reduce((m, e) => Math.max(m, e.id), 0) + 1; },
+  add(entry){ const l = this.list(); l.unshift(entry); this.save(l); },
+  remove(id){ this.save(this.list().filter(x => x.id !== id)); ART_CACHE.delete(id); },
+  clear(){ this.save([]); ART_CACHE.clear(); },
+};
 
-/* =========================================================
-   5. SOUND (WebAudio, no assets)
-   ========================================================= */
+/* ---------- 5. sound (WebAudio, no assets) ---------- */
 const Sound = {
-  ctx: null, on: true,
+  ctx: null, on: store.get('cl-sound', true),
   init(){
     if (!this.ctx){ try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
     if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
   },
+  ok(){ return this.on && this.ctx && this.ctx.state === 'running'; },
   noise(dur = .15, gain = .4, freq = 900){
-    if (!this.on || !this.ctx || this.ctx.state !== 'running') return;
+    if (!this.ok()) return;
     const c = this.ctx, len = Math.max(1, Math.floor(c.sampleRate * dur));
     const buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.2);
@@ -770,7 +924,7 @@ const Sound = {
     src.connect(f).connect(g).connect(c.destination); src.start();
   },
   thud(gain = .5){
-    if (!this.on || !this.ctx || this.ctx.state !== 'running') return;
+    if (!this.ok()) return;
     const c = this.ctx, o = c.createOscillator(), g = c.createGain(), t = c.currentTime;
     o.type = 'sine'; o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(38, t + .25);
     g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(.001, t + .3);
@@ -782,21 +936,22 @@ const Sound = {
   stamp(){ this.noise(.18, .7, 500); this.thud(.8); },
 };
 
-/* =========================================================
-   6. DOM REFS
-   ========================================================= */
-const stage = $('#stage'), stageWrap = $('#stageWrap'), stageHint = $('#stageHint');
-const statusEl = $('#status'), meterFill = $('#meterFill'), meterPct = $('#meterPct');
-const knob = $('#knob'), track = $('#leverTrack'), rod = $('#leverRod');
-const modal = $('#modal'), modalBody = $('#modalBody');
-
-const setStatus = t => { statusEl.textContent = t; };
-
-/* =========================================================
-   7. TRIGGER FX — 설계를 깨부수는 애니메이션
-   ========================================================= */
+/* ---------- 6. grid-breaking FX (cracks persist across rooms) ---------- */
+const CRACK_KEY = 'cl-cracks';
+function drawCrack(c, animate){
+  const svg = $('#cracks'); if (!svg) return;
+  const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  p.setAttribute('d', c.d); p.setAttribute('fill', 'none');
+  p.setAttribute('stroke', c.col); p.setAttribute('stroke-width', c.w); p.setAttribute('opacity', '.7');
+  svg.appendChild(p);
+  if (animate && window.gsap){
+    p.setAttribute('pathLength', '1'); p.setAttribute('stroke-dasharray', '1'); p.setAttribute('stroke-dashoffset', '1');
+    gsap.to(p, { attr:{ 'stroke-dashoffset': 0 }, duration:.45, ease:'power3.out' });
+  }
+  const all = svg.querySelectorAll('path');
+  if (all.length > 7) all[0].remove();
+}
 function addCrack(){
-  const svg = $('#cracks');
   const edge = Math.floor(Math.random() * 4);
   let x = edge === 0 ? 0 : edge === 1 ? 100 : Math.random() * 100;
   let y = edge === 2 ? 0 : edge === 3 ? 100 : Math.random() * 100;
@@ -808,19 +963,12 @@ function addCrack(){
     y += (ty - y) / (steps - i + 1) + (Math.random() * 8 - 4);
     d += ` L${f1(x)} ${f1(y)}`;
   }
-  const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  p.setAttribute('d', d); p.setAttribute('fill', 'none');
-  p.setAttribute('stroke', Math.random() < .5 ? C.red : C.ink);
-  p.setAttribute('stroke-width', (1.5 + Math.random() * 2.5).toFixed(1));
-  p.setAttribute('pathLength', '1'); p.setAttribute('stroke-dasharray', '1'); p.setAttribute('stroke-dashoffset', '1');
-  p.setAttribute('opacity', '.7');
-  svg.appendChild(p);
-  gsap.to(p, { attr:{ 'stroke-dashoffset': 0 }, duration:.45, ease:'power3.out' });
-  const all = svg.querySelectorAll('path');
-  if (all.length > 7) gsap.to(all[0], { opacity:0, duration:.4, onComplete:() => all[0].remove() });
+  const c = { d, col: Math.random() < .5 ? C.red : C.ink, w: (1.5 + Math.random() * 2.5).toFixed(1) };
+  drawCrack(c, true);
+  const saved = store.get(CRACK_KEY, []); saved.push(c); store.set(CRACK_KEY, saved.slice(-7));
 }
-
 function breakGrid(source){
+  if (!window.gsap) return;
   const fl = $('#flash');
   gsap.timeline().set(fl, { opacity:1 }).to(fl, { opacity:0, duration:.06 })
     .set(fl, { opacity:.75 }, '+=.05').to(fl, { opacity:0, duration:.3 });
@@ -832,289 +980,32 @@ function breakGrid(source){
     rotation:gsap.utils.random(-5, 5), x:gsap.utils.random(-26, 26), y:gsap.utils.random(-12, 12),
     duration:.8, ease:'elastic.out(1,.4)',
   }));
-  gsap.to(stageWrap, { rotation:gsap.utils.random(-1.8, 1.8), duration:.6, ease:'back.out(3)' });
-  gsap.to('#machine', { rotation:gsap.utils.random(-1.5, 1.5), duration:.6, ease:'back.out(3)' });
   addCrack();
 }
 
-/* =========================================================
-   8. SLOT REELS
-   ========================================================= */
-const randLayer = kind => makeLayer(mulberry32((Math.random() * 1e9) | 0), kind);
-function cellHTML(kind, l){
-  if (!l) return `<div class="cell void">∅<span class="cell-tag">NULL</span></div>`;
-  return `<div class="cell">${fragSVG(l, true)}<span class="cell-tag">${KINDS[kind].variants[l.v]}</span></div>`;
-}
-function initReels(){
-  $$('.reel-win').forEach(w => { w.querySelector('.reel-strip').innerHTML = cellHTML(w.dataset.kind, randLayer(w.dataset.kind)); });
-}
-
-function spinReels(art){
-  const wins = $$('.reel-win');
-  return Promise.all(wins.map((win, i) => new Promise(res => {
-    const kind = win.dataset.kind, strip = win.querySelector('.reel-strip');
-    const target = art.layers.find(l => l.kind === kind);
-    const N = 20 + i * 7;
-    const prev = strip.lastElementChild ? strip.lastElementChild.outerHTML : cellHTML(kind, randLayer(kind));
-    let html = prev;
-    for (let k = 1; k < N; k++) html += cellHTML(kind, randLayer(kind));
-    html += cellHTML(kind, target);
-    strip.innerHTML = html;
-    const H = strip.firstElementChild.offsetHeight;
-    gsap.set(strip, { y:0 });
-    win.classList.add('blur');
-    let last = 0;
-    gsap.to(strip, {
-      y: -N * H, duration: 1.5 + i * .6, ease: 'power3.out',
-      onUpdate(){
-        const idx = Math.floor(-gsap.getProperty(strip, 'y') / H);
-        if (idx !== last){ last = idx; Sound.tick(); }
-        if (this.progress() > .8) win.classList.remove('blur');
-      },
-      onComplete(){
-        // keep only the final cell (DOM light)
-        strip.innerHTML = strip.lastElementChild.outerHTML; gsap.set(strip, { y:0 });
-        win.classList.remove('blur'); win.classList.add('hit');
-        setTimeout(() => win.classList.remove('hit'), 380);
-        Sound.slam();
-        gsap.fromTo(win, { y:8, rotation:gsap.utils.random(-3, 3) }, { y:0, rotation:0, duration:.5, ease:'elastic.out(1,.3)' });
-        res();
-      },
-    });
-  })));
+/* ---------- 7. detail modal (dissection) ---------- */
+let modalOpen = false;
+function mountModal(){
+  if ($('#modal')) return;
+  const m = document.createElement('div');
+  m.id = 'modal'; m.className = 'hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-8';
+  m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-labelledby', 'mTitle');
+  m.innerHTML = `
+    <div id="modalOverlay" class="absolute inset-0"></div>
+    <div id="modalBox" class="relative w-full max-w-6xl concrete-fill border-[6px] border-ink shadow-[16px_16px_0_#FF2B1C] overflow-y-auto scrollbar-brut">
+      <div class="hazard h-4 border-b-[5px] border-ink sticky top-0 z-30"></div>
+      <button id="modalClose" class="btn-brut absolute top-7 right-4 z-30 w-12 h-12 text-2xl leading-none !bg-[#FF2B1C] !text-white" aria-label="닫기">✕</button>
+      <div id="modalBody"></div>
+    </div>`;
+  document.body.appendChild(m);
+  $('#modalClose').addEventListener('click', closeModal);
+  $('#modalOverlay').addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && modalOpen) closeModal(); });
 }
 
-/* =========================================================
-   9. STAGE — chaos layering → lock
-   ========================================================= */
-function blankStage(){
-  stage.style.setProperty('--bg', '#c9c7bf');
-  stage.innerHTML = `<div class="art-inner"><div class="art-grid"></div></div><div class="art-noise"></div>`;
-  stage.classList.remove('pinned');
-}
-
-function startChaos(){
-  const inner = stage.querySelector('.art-inner');
-  return setInterval(() => {
-    const kind = pick(Math.random, ['concrete', 'steel', 'type']);
-    const l = randLayer(kind);
-    const tmp = document.createElement('div');
-    tmp.innerHTML = layerHTML(l, 0, true);
-    const el = tmp.firstElementChild; el.classList.add('chaos');
-    inner.appendChild(el);
-    gsap.fromTo(el, { scale:2.6, opacity:0, rotation:gsap.utils.random(-180, 180) },
-                    { scale:1, opacity:1, rotation:0, duration:.16, ease:'power2.in' });
-    const all = inner.querySelectorAll('.chaos');
-    if (all.length > 14) all[0].remove();
-    stage.style.setProperty('--bg', pick(Math.random, ['#c9c7bf', '#d9d7cf', '#bfbdb5', C.neon]));
-  }, 70);
-}
-
-function renderStage(art){
-  stage.style.setProperty('--bg', art.bg);
-  stage.innerHTML = artInnerHTML(art, false);
-}
-
-function placeStamp(art, animate){
-  const s = document.createElement('div');
-  s.className = 'stamp';
-  s.innerHTML = `<span class="s1">完成</span><span class="s2">ARCHIVED №${pad(art.id)}</span>`;
-  const r = mulberry32(art.seed ^ 77);
-  const corner = Math.floor(r() * 4);
-  Object.assign(s.style, {
-    [corner < 2 ? 'top' : 'bottom']: (4 + r() * 6) + '%',
-    [corner % 2 ? 'right' : 'left']: (4 + r() * 6) + '%',
-  });
-  stage.appendChild(s);
-  const rot = -8 - r() * 10;
-  if (!animate){ gsap.set(s, { rotation:rot }); return; }
-  gsap.fromTo(s, { scale:3.6, opacity:0, rotation:rot - 25 }, {
-    scale:1, opacity:1, rotation:rot, duration:.28, ease:'power4.in',
-    onComplete(){ Sound.stamp(); gsap.fromTo(stageWrap, { x:-10, y:4 }, { x:0, y:0, duration:.6, ease:'elastic.out(1,.3)' }); },
-  });
-}
-
-function composeFinal(art){
-  return new Promise(res => {
-    renderStage(art);
-    const lyrs = stage.querySelectorAll('.lyr');
-    gsap.timeline({ onComplete:res })
-      .from(stage.querySelector('.art-grid'), { opacity:0, scale:1.2, duration:.2 })
-      .from(lyrs, {
-        opacity:0, scale:2.6, y:-90, rotation:() => gsap.utils.random(-120, 120),
-        duration:.3, ease:'power4.in',
-        stagger:{ each:.09, onComplete(){ Sound.thud(.22); } },
-        clearProps:'transform,opacity',
-      })
-      .to(stage, { filter:'brightness(2.2) contrast(1.6)', duration:.05 })
-      .to(stage, { filter:'none', duration:.35 });
-  });
-}
-
-function showCurrent(art){
-  $('#currentTitle').textContent = art.title;
-  $('#dissectBtn').classList.remove('hidden');
-  $('#seedLbl').textContent = pad(art.seed >>> 0, 10).slice(-8);
-}
-
-/* =========================================================
-   10. MAIN TRIGGER
-   ========================================================= */
-async function trigger(source = 'lever'){
-  if (spinning || modalOpen) return;
-  spinning = true;
-  Sound.init(); Sound.clank();
-  energy = 0;
-  breakGrid(source);
-
-  const seed = ((Math.random() * 2 ** 31) ^ Date.now()) >>> 0;
-  const entry = { id: ++counter, seed, t: Date.now() };
-  const art = buildArt(entry);
-
-  stageHint.classList.add('hidden');
-  $('#spinLabel').classList.remove('hidden');
-  knob.classList.add('armed');
-  setStatus(`SPINNING… [${source.toUpperCase()}] 파편 낙하 중 — 콘크리트 / 철골 / 문자 조각이 무작위로 중첩된다.`);
-  blankStage();
-  const chaos = startChaos();
-
-  await spinReels(art);
-  clearInterval(chaos);
-
-  setStatus('LOCKING… 회전 정지. 레이어를 고정한다.');
-  await composeFinal(art);
-  placeStamp(art, true);
-  stage.classList.add('pinned');
-
-  ARCHIVE.unshift(entry); saveArchive();
-  current = art;
-  showCurrent(art);
-  renderArchive(true);
-  $('#spinLabel').classList.add('hidden');
-  knob.classList.remove('armed');
-  setStatus(`PINNED №${pad(art.id)} — ${art.stats.n}개 레이어 고정 완료. 캔버스를 클릭해 해부하라.`);
-  spinning = false;
-}
-
-/* =========================================================
-   11. LEVER (drag / click / keyboard)
-   ========================================================= */
-const maxY = () => Math.max(60, track.clientHeight - knob.offsetHeight);
-gsap.ticker.add(() => { rod.style.height = (gsap.getProperty(knob, 'y') + 58) + 'px'; });
-
-function springBack(){ gsap.to(knob, { y:0, duration:1, ease:'elastic.out(1,.32)' }); }
-function autoPull(){
-  if (spinning || modalOpen) return;
-  Sound.init();
-  gsap.timeline()
-    .to(knob, { y:maxY(), duration:.22, ease:'power3.in' })
-    .add(() => trigger('lever'))
-    .to(knob, { y:0, duration:1, ease:'elastic.out(1,.32)' }, '+=.08');
-}
-
-let ldrag = null;
-knob.addEventListener('pointerdown', e => {
-  e.stopPropagation();
-  if (spinning) return;
-  Sound.init();
-  knob.setPointerCapture(e.pointerId);
-  gsap.killTweensOf(knob);
-  ldrag = { y0: e.clientY - gsap.getProperty(knob, 'y'), moved: 0, sy: e.clientY };
-});
-knob.addEventListener('pointermove', e => {
-  if (!ldrag) return;
-  const y = clamp(e.clientY - ldrag.y0, 0, maxY());
-  ldrag.moved = Math.max(ldrag.moved, Math.abs(e.clientY - ldrag.sy));
-  gsap.set(knob, { y, rotation:(y / maxY()) * 4 });
-  knob.classList.toggle('armed', y > maxY() * .7);
-});
-const endLever = e => {
-  if (!ldrag) return;
-  e && e.stopPropagation();
-  const d = ldrag; ldrag = null;
-  const y = gsap.getProperty(knob, 'y');
-  gsap.to(knob, { rotation:0, duration:.3 });
-  if (d.moved < 6){ knob.classList.remove('armed'); autoPull(); return; }
-  if (y > maxY() * .7){
-    gsap.to(knob, { y:maxY(), duration:.06, onComplete(){ trigger('lever'); springBack(); } });
-  } else { knob.classList.remove('armed'); springBack(); }
-};
-knob.addEventListener('pointerup', endLever);
-knob.addEventListener('pointercancel', endLever);
-knob.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); autoPull(); } });
-$('#leverHouse').addEventListener('click', e => { if (e.target === knob || knob.contains(e.target)) return; autoPull(); });
-$('#pullBtn').addEventListener('click', autoPull);
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && modalOpen){ closeModal(); return; }
-  if (e.code === 'Space' && !modalOpen){
-    const tag = (e.target.tagName || '').toLowerCase();
-    if (['button', 'input', 'textarea', 'a'].includes(tag)) return;
-    e.preventDefault(); autoPull();
-  }
-});
-document.addEventListener('pointerdown', () => Sound.init(), { once:false, passive:true });
-
-/* =========================================================
-   12. SCROLL / DRAG VELOCITY → SHAKE ENERGY
-   ========================================================= */
-let energy = 0, lastT = performance.now(), lastDir = 0, engineVisible = true, lastSource = 'scroll';
-
-new IntersectionObserver(es => { es.forEach(en => { engineVisible = en.intersectionRatio > .2; }); },
-  { threshold:[0, .2, .4, .6] }).observe($('#engine'));
-
-window.addEventListener('wheel', e => {
-  if (spinning || modalOpen) return;
-  const mult = e.deltaMode === 1 ? 33 : e.deltaMode === 2 ? 400 : 1;
-  const d = Math.min((Math.abs(e.deltaY) + Math.abs(e.deltaX)) * mult, 240);
-  const dir = Math.sign(e.deltaY);
-  let add = d / 1300;
-  if (dir && lastDir && dir !== lastDir) add += .09;   // 방향 반전(흔들기) 보너스
-  if (dir) lastDir = dir;
-  energy += add; lastSource = 'scroll';
-}, { passive:true });
-
-// stage drag velocity
-let sp = null;
-stage.addEventListener('pointerdown', e => {
-  sp = { sx:e.clientX, sy:e.clientY, lx:e.clientX, ly:e.clientY, t:performance.now(), moved:0 };
-});
-stage.addEventListener('pointermove', e => {
-  if (!sp) return;
-  const now = performance.now();
-  const dist = Math.hypot(e.clientX - sp.lx, e.clientY - sp.ly);
-  const v = dist / Math.max(8, now - sp.t);
-  sp.lx = e.clientX; sp.ly = e.clientY; sp.t = now; sp.moved += dist;
-  if (!spinning && !modalOpen){ energy += Math.min(v, 6) * .04; lastSource = 'drag'; }
-});
-const endStage = () => {
-  if (sp && sp.moved < 8 && current && !spinning) openModal(current);
-  sp = null;
-};
-stage.addEventListener('pointerup', endStage);
-stage.addEventListener('pointerleave', () => { sp = null; });
-
-function loop(t){
-  const dt = t - lastT; lastT = t;
-  energy *= Math.pow(.965, dt / 16.67);
-  const pct = Math.min(energy, 1);
-  meterFill.style.width = (pct * 100).toFixed(1) + '%';
-  meterFill.classList.toggle('hot', pct > .7);
-  meterPct.textContent = Math.round(pct * 100) + '%';
-  if (energy >= 1 && !spinning && !modalOpen && engineVisible){
-    energy = 0;
-    gsap.timeline().to(knob, { y:maxY(), duration:.15, ease:'power3.in' }).to(knob, { y:0, duration:1, ease:'elastic.out(1,.3)' });
-    trigger(lastSource);
-  }
-  requestAnimationFrame(loop);
-}
-requestAnimationFrame(loop);
-
-/* =========================================================
-   13. DETAIL MODAL — 상세 해부
-   ========================================================= */
-function openModal(art){
+function openModal(art, opts = {}){
   if (!art) return;
+  mountModal();
   modalOpen = true;
   const st = art.stats;
   const date = new Date(art.t);
@@ -1134,22 +1025,20 @@ function openModal(art){
       </span>
     </li>`).join('');
 
-  modalBody.innerHTML = `
-    <div class="grid md:grid-cols-[1.05fr_1fr] gap-0">
-      <!-- left: artwork + explode -->
+  $('#modalBody').innerHTML = `
+    <div class="grid md:grid-cols-[1.05fr_1fr]">
       <div class="p-5 md:p-8 border-b-[5px] md:border-b-0 md:border-r-[5px] border-ink relative">
-        <div class="font-mono text-[11px] bg-ink text-neon inline-block px-2 py-1 mb-4 -rotate-1">DISSECTION TABLE / 해부대</div>
+        <div class="plate bg-ink text-neon inline-block px-2 py-1 mb-4 -rotate-1">해부대 · Dissection</div>
         <div class="relative" style="perspective:1600px">
           <div id="mArt" class="art bx" style="--bg:${art.bg}">${artInnerHTML(art, false)}</div>
         </div>
         <div class="flex flex-wrap gap-3 mt-8">
-          <button id="explodeBtn" class="btn-brut text-xs px-3 py-2">◇ 분해 보기 (EXPLODE)</button>
+          <button id="explodeBtn" class="btn-brut text-xs px-3 py-2">◇ 분해 보기</button>
           <button id="deleteBtn" class="btn-brut ghost text-xs px-3 py-2">이 작품 파기</button>
         </div>
-        <p class="font-mono text-[10px] mt-3 opacity-80">레이어 목록에 마우스를 올리면 해당 파편만 드러난다.</p>
+        <p class="font-mono text-[10px] mt-3 opacity-80">레이어 목록 위에 커서를 올리면 그 파편만 남는다.</p>
       </div>
 
-      <!-- right: structural data -->
       <div class="p-5 md:p-8 bg-[#efeee8]/70">
         <div class="flex items-center gap-2 mb-2 pr-14">
           <span class="kbadge k-${st.dominant}">${DOM_LABEL[st.dominant]}</span>
@@ -1159,12 +1048,8 @@ function openModal(art){
 
         <div class="grid grid-cols-3 gap-2 mt-5">
           ${[
-            ['레이어', st.n],
-            ['엔트로피', st.entropy + '%'],
-            ['그리드 붕괴율', st.collapse + '%'],
-            ['중첩 밀도', st.density + '%'],
-            ['블렌드 충돌', st.blends],
-            ['SEED', pad(art.seed >>> 0, 10).slice(-8)],
+            ['레이어', st.n], ['엔트로피', st.entropy + '%'], ['그리드 붕괴율', st.collapse + '%'],
+            ['중첩 밀도', st.density + '%'], ['블렌드 충돌', st.blends], ['SEED', pad(art.seed >>> 0, 10).slice(-8)],
           ].map(([k, v], j) => `
             <div class="border-4 border-ink p-2 ${j === 2 ? 'bg-blood text-white' : j === 0 ? 'bg-neon' : 'bg-[#e4e3dc]'}">
               <div class="font-mono text-[9px] leading-none opacity-80">${k}</div>
@@ -1194,153 +1079,536 @@ function openModal(art){
       </div>
     </div>`;
 
-  modal.classList.remove('hidden');
+  $('#modal').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
-  gsap.fromTo('#modalOverlay', { opacity:0 }, { opacity:1, duration:.25 });
-  gsap.fromTo('#modalBox', { y:140, rotation:-7, scale:.7, opacity:0 },
-                           { y:0, rotation:-.8, scale:1, opacity:1, duration:.6, ease:'back.out(2.2)' });
+  if (window.gsap){
+    gsap.fromTo('#modalOverlay', { opacity:0 }, { opacity:1, duration:.25 });
+    gsap.fromTo('#modalBox', { y:120, rotation:-6, scale:.7, opacity:0 }, { y:0, rotation:-.8, scale:1, opacity:1, duration:.55, ease:'back.out(2.2)' });
+  }
   Sound.init(); Sound.slam();
 
   const mArt = $('#mArt');
-  // hover rows → isolate layer
   $$('#mRows .row-l').forEach(row => {
     const i = row.dataset.i;
-    const on = () => {
-      mArt.classList.add('focus');
-      $$('.lyr', mArt).forEach(l => l.classList.toggle('on', l.dataset.i === i));
-      row.classList.add('on');
-    };
+    const on = () => { mArt.classList.add('focus'); $$('.lyr', mArt).forEach(l => l.classList.toggle('on', l.dataset.i === i)); row.classList.add('on'); };
     const off = () => { mArt.classList.remove('focus'); row.classList.remove('on'); };
     row.addEventListener('mouseenter', on); row.addEventListener('mouseleave', off);
-    row.addEventListener('click', () => { mArt.classList.contains('focus') && row.classList.contains('on') ? off() : on(); });
+    row.addEventListener('click', () => { row.classList.contains('on') ? off() : on(); });
   });
-  // explode
   $('#explodeBtn').addEventListener('click', e => {
     const ex = mArt.classList.toggle('exploded');
     e.currentTarget.classList.toggle('is-active', ex);
-    e.currentTarget.textContent = ex ? '◆ 다시 합치기 (COLLAPSE)' : '◇ 분해 보기 (EXPLODE)';
+    e.currentTarget.textContent = ex ? '◆ 다시 합치기' : '◇ 분해 보기';
     Sound.clank();
   });
-  // delete
   let armed = false;
   $('#deleteBtn').addEventListener('click', e => {
     if (!armed){ armed = true; e.currentTarget.textContent = '정말? 다시 클릭'; e.currentTarget.classList.add('is-active'); return; }
-    ARCHIVE = ARCHIVE.filter(x => x.id !== art.id); saveArchive(); ART_CACHE.delete(art.id);
-    if (current && current.id === art.id){
-      current = null; blankStage(); stageHint.classList.remove('hidden');
-      $('#currentTitle').textContent = '— 작품이 파기되었다 —'; $('#dissectBtn').classList.add('hidden');
-    }
-    closeModal(); renderArchive(true);
+    archive.remove(art.id);
+    closeModal();
+    opts.onDelete && opts.onDelete(art);
   });
 }
-
 function closeModal(){
   if (!modalOpen) return;
+  const done = () => { $('#modal').classList.add('hidden'); $('#modalBody').innerHTML = ''; document.body.style.overflow = ''; modalOpen = false; };
+  if (!window.gsap) return done();
   gsap.to('#modalBox', { y:80, rotation:4, scale:.85, opacity:0, duration:.25, ease:'power3.in' });
-  gsap.to('#modalOverlay', { opacity:0, duration:.25, onComplete(){
-    modal.classList.add('hidden'); modalBody.innerHTML = '';
-    document.body.style.overflow = ''; modalOpen = false;
-  }});
-}
-$('#modalClose').addEventListener('click', closeModal);
-$('#modalOverlay').addEventListener('click', closeModal);
-$('#dissectBtn').addEventListener('click', () => current && openModal(current));
-
-/* =========================================================
-   14. ARCHIVE GALLERY + FILTERS
-   ========================================================= */
-function renderFilters(){
-  const arts = ARCHIVE.map(buildArt);
-  const count = k => k === 'all' ? arts.length : arts.filter(a => a.stats.dominant === k).length;
-  const rots = [-2, 1.5, -1, 2.5, -2.5];
-  $('#filters').innerHTML = Object.keys(DOM_LABEL).map((k, i) => `
-    <button class="btn-brut ${k === filter ? 'is-active' : 'ghost'} text-xs md:text-sm px-3 md:px-4 py-2" data-f="${k}" style="transform:rotate(${rots[i]}deg)">
-      ${DOM_LABEL[k]} <span class="font-mono ml-1">[${pad(count(k), 2)}]</span>
-    </button>`).join('');
-  $$('#filters button').forEach(b => b.addEventListener('click', () => {
-    if (filter === b.dataset.f) return;
-    filter = b.dataset.f; Sound.init(); Sound.tick(); Sound.thud(.25);
-    renderArchive(true);
-  }));
+  gsap.to('#modalOverlay', { opacity:0, duration:.25, onComplete:done });
 }
 
-function renderArchive(animate){
-  renderFilters();
-  const arts = ARCHIVE.map(buildArt).filter(a => filter === 'all' || a.stats.dominant === filter);
-  const grid = $('#grid');
-  grid.innerHTML = arts.map(a => {
-    const r = mulberry32(a.seed ^ 1234);
-    const rot = (r() * 7 - 3.5).toFixed(2), dy = Math.round(r() * 40 - 10);
-    return `
-      <button class="card" data-id="${a.id}" style="--r:${rot}deg;--dy:${dy}px">
-        <div class="art" style="--bg:${a.bg}">${artInnerHTML(a, true)}</div>
-        <div class="p-2 md:p-3">
-          <div class="flex items-center justify-between gap-2">
-            <span class="font-mono text-[10px]">№${pad(a.id)}</span>
-            <span class="kbadge k-${a.stats.dominant}">${a.stats.dominant.toUpperCase()}</span>
-          </div>
-          <div class="font-kr text-sm md:text-lg leading-tight mt-1 line-clamp-2">${a.title.split('—')[1] || a.title}</div>
-          <div class="font-mono text-[9px] mt-1 opacity-70">${a.stats.n} LAYERS · 붕괴 ${a.stats.collapse}%</div>
-        </div>
-      </button>`;
-  }).join('');
-  $$('#grid .card').forEach(c => c.addEventListener('click', () => {
-    const e = ARCHIVE.find(x => x.id === +c.dataset.id); if (e) openModal(buildArt(e));
-  }));
-  $('#emptyState').classList.toggle('hidden', arts.length > 0);
-  $('#archCount').textContent = ARCHIVE.length;
-  $('#navCount').textContent = pad(ARCHIVE.length, 2);
-  if (animate && arts.length){
-    gsap.from('#grid .card', { y:60, opacity:0, rotation:() => gsap.utils.random(-25, 25), duration:.45, ease:'back.out(1.8)', stagger:.04, clearProps:'transform,opacity' });
+/* ---------- 8. page chrome: FX layers, curtain transitions, sound toggle ---------- */
+function initChrome(){
+  // FX layers
+  if (!$('#cracks')){
+    document.body.insertAdjacentHTML('afterbegin', `
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+        <filter id="grain" x="-15%" y="-15%" width="130%" height="130%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n"/>
+          <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.25 0 0 0 -0.5" result="spots"/>
+          <feComposite in="spots" in2="SourceGraphic" operator="in" result="s2"/>
+          <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="s2"/></feMerge>
+        </filter></defs></svg>
+      <svg id="cracks" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div id="flash" class="hazard" aria-hidden="true"></div>
+      <div id="breach" aria-hidden="true"></div>`);
+    store.get(CRACK_KEY, []).forEach(c => drawCrack(c, false));
   }
-}
 
-let clearArmed = false;
-$('#clearBtn').addEventListener('click', e => {
-  if (!ARCHIVE.length) return;
-  if (!clearArmed){ clearArmed = true; e.currentTarget.textContent = '되돌릴 수 없다. 다시 클릭'; e.currentTarget.classList.add('is-active'); return; }
-  ARCHIVE = []; ART_CACHE.clear(); saveArchive();
-  current = null; blankStage(); stageHint.classList.remove('hidden');
-  $('#currentTitle').textContent = '— 아직 완성된 작품 없음 —'; $('#dissectBtn').classList.add('hidden');
-  clearArmed = false; e.currentTarget.textContent = '보관소 비우기'; e.currentTarget.classList.remove('is-active');
-  renderArchive(false);
-});
+  // nav: mark current room, live archive count
+  const here = document.body.dataset.room;
+  $$('[data-room-link]').forEach(a => a.classList.toggle('is-here', a.dataset.roomLink === here));
+  $$('[data-archive-count]').forEach(el => { el.textContent = pad(archive.list().length, 2); });
 
-/* =========================================================
-   15. SOUND TOGGLE, DECOR, INIT
-   ========================================================= */
-$('#soundBtn').addEventListener('click', e => {
-  Sound.on = !Sound.on; Sound.init();
-  e.currentTarget.textContent = 'SOUND: ' + (Sound.on ? 'ON' : 'OFF');
-  e.currentTarget.classList.toggle('ghost', !Sound.on);
-});
-
-function fillDecor(){
-  $$('.deco').forEach(d => {
-    const l = randLayer(d.dataset.kind);
-    d.innerHTML = `<div style="aspect-ratio:1/1;transform:rotate(${l.rot}deg)">${fragSVG(l, false)}</div>`;
+  // sound toggle
+  $$('[data-sound-toggle]').forEach(btn => {
+    const paint = () => { btn.textContent = 'SOUND ' + (Sound.on ? 'ON' : 'OFF'); btn.classList.toggle('ghost', !Sound.on); };
+    paint();
+    btn.addEventListener('click', () => { Sound.on = !Sound.on; store.set('cl-sound', Sound.on); Sound.init(); paint(); });
   });
-}
+  document.addEventListener('pointerdown', () => Sound.init(), { passive:true });
 
-function init(){
-  fillDecor();
-  initReels();
-  renderArchive(false);
-  if (ARCHIVE.length){
-    current = buildArt(ARCHIVE[0]);
-    renderStage(current); placeStamp(current, false);
-    stage.classList.add('pinned'); stageHint.classList.add('hidden');
-    showCurrent(current);
-    setStatus(`PINNED №${pad(current.id)} — 마지막으로 완성된 작품. 레버를 당겨 새 우연을 투하하라.`);
+  // curtain: lift on arrival, drop on departure
+  const curtain = $('#curtain');
+  if (curtain && window.gsap){
+    gsap.set(curtain, { yPercent:0 });
+    document.documentElement.classList.remove('entering');
+    gsap.to(curtain, { yPercent:-101, duration:.75, ease:'power4.inOut', delay:.15 });
+    window.addEventListener('pageshow', e => { if (e.persisted) gsap.set(curtain, { yPercent:-101 }); });
+    document.addEventListener('click', e => {
+      const a = e.target.closest('a[href]');
+      if (!a || a.target === '_blank' || e.metaKey || e.ctrlKey || e.shiftKey) return;
+      const href = a.getAttribute('href');
+      if (!href || href.startsWith('#') || /^(https?:|mailto:)/.test(href)) return;
+      e.preventDefault();
+      Sound.init(); Sound.slam();
+      gsap.fromTo(curtain, { yPercent:-101 }, { yPercent:0, duration:.5, ease:'power4.in', onComplete(){ location.href = href; } });
+    });
+  } else {
+    document.documentElement.classList.remove('entering');
   }
-  // intro: deconstruct the hero on load
-  gsap.from('h1 .brk', { y:120, opacity:0, rotation:() => gsap.utils.random(-20, 20), duration:.8, ease:'back.out(2)', stagger:.12 });
-  gsap.from('#machine', { x:80, opacity:0, rotation:6, duration:.9, ease:'back.out(1.6)', delay:.3 });
-  gsap.from('#stageWrap', { x:-80, opacity:0, rotation:-4, duration:.9, ease:'back.out(1.6)', delay:.2 });
 }
 
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(init); else init();
+/* ---------- export ---------- */
+window.CL = {
+  $, $$, mulberry32, R, RI, pick, pad, f1, clamp, store, C,
+  KINDS, DOM_LABEL, fragSVG, makeLayer, randLayer, generateArt, buildArt, analyze, critique,
+  layerHTML, artInnerHTML, archive, Sound, breakGrid, addCrack,
+  openModal, closeModal, isModalOpen: () => modalOpen, initChrome,
+};
 })();
+
+</script>
+<script>
+CL.initChrome();
+</script>
+<script>
+/* ===== PAGE 00 · 서문 ===== */
+(() => {
+  const { $, $$, mulberry32, pad, generateArt, artInnerHTML, randLayer, fragSVG } = CL;
+  const hasG = !!window.gsap;
+
+  /* live plate — composes itself, forever, without saving */
+  const plate = $('#livePlate');
+  function livePlate(){
+    const seed = ((Math.random() * 2 ** 31) ^ Date.now()) >>> 0;
+    const art = generateArt(seed);
+    plate.style.setProperty('--bg', art.bg);
+    plate.innerHTML = artInnerHTML(art, false);
+    $('#liveSeed').textContent = pad(seed, 10).slice(-8);
+    if (!hasG) return;
+    const lyrs = plate.querySelectorAll('.lyr');
+    gsap.timeline({ onComplete(){ setTimeout(clearPlate, 3800); } })
+      .from(plate.querySelector('.art-grid'), { opacity:0, duration:.4 })
+      .from(lyrs, { opacity:0, scale:2.4, y:-60, rotation:() => gsap.utils.random(-90, 90), duration:.35, ease:'power4.in', stagger:.42, clearProps:'transform,opacity' });
+  }
+  function clearPlate(){
+    gsap.to(plate.querySelector('.art-inner'), { yPercent:110, rotation:6, duration:.55, ease:'power3.in', onComplete:livePlate });
+  }
+
+  /* material samples — keep regenerating */
+  const mats = $$('.mat-frag');
+  function rollMat(el){
+    el.innerHTML = fragSVG(randLayer(el.dataset.kind), false);
+    if (hasG) gsap.from(el.firstElementChild, { scale:.4, rotation:gsap.utils.random(-40, 40), opacity:0, duration:.45, ease:'back.out(2)' });
+  }
+  mats.forEach(rollMat);
+  let mi = 0;
+  setInterval(() => { rollMat(mats[mi % mats.length]); mi++; }, 1400);
+
+  /* reveal on scroll */
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    io.unobserve(e.target);
+    if (hasG) gsap.to(e.target, { opacity:1, y:0, duration:.9, ease:'power3.out' });
+    else { e.target.style.opacity = 1; e.target.style.transform = 'none'; }
+  }), { threshold:.15 });
+  $$('.reveal').forEach(el => io.observe(el));
+
+  /* 4,294,967,296 */
+  const sc = $('#seedCount');
+  const fmt = n => Math.round(n).toLocaleString('en-US');
+  const io2 = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    io2.disconnect();
+    if (!hasG){ sc.textContent = fmt(4294967296); return; }
+    const o = { v:0 };
+    gsap.to(o, { v:4294967296, duration:2.4, ease:'power4.out', onUpdate(){ sc.textContent = fmt(o.v); } });
+  }), { threshold:.4 });
+  io2.observe(sc);
+
+  const start = () => {
+    livePlate();
+    if (hasG) gsap.from('h1 .brk', { y:120, opacity:0, rotation:() => gsap.utils.random(-20, 20), duration:.8, ease:'back.out(2)', stagger:.12, delay:.5 });
+  };
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(start); else start();
+})();
+</script>
+<script>
+/* ===== PAGE 01 · 기계 ===== */
+(() => {
+  const { $, $$, mulberry32, pick, pad, clamp, KINDS, fragSVG, randLayer, buildArt, layerHTML, artInnerHTML, archive, Sound } = CL;
+
+  const stage = $('#stage'), stageWrap = $('#stageWrap'), stageHint = $('#stageHint');
+  const statusEl = $('#status'), meterFill = $('#meterFill'), meterPct = $('#meterPct');
+  const knob = $('#knob'), track = $('#leverTrack'), rod = $('#leverRod');
+  const setStatus = t => { statusEl.textContent = t; };
+  let current = null, spinning = false, energy = 0;
+  const modalOpen = () => CL.isModalOpen();
+  const inRoom = () => document.body.dataset.room === 'machine';
+
+  /* ---------- reels ---------- */
+  function cellHTML(kind, l){
+    if (!l) return `<div class="cell void">∅<span class="cell-tag">NULL</span></div>`;
+    return `<div class="cell">${fragSVG(l, true)}<span class="cell-tag">${KINDS[kind].variants[l.v]}</span></div>`;
+  }
+  $$('.reel-win').forEach(w => { w.querySelector('.reel-strip').innerHTML = cellHTML(w.dataset.kind, randLayer(w.dataset.kind)); });
+
+  function spinReels(art){
+    return Promise.all($$('.reel-win').map((win, i) => new Promise(res => {
+      const kind = win.dataset.kind, strip = win.querySelector('.reel-strip');
+      const target = art.layers.find(l => l.kind === kind);
+      const N = 20 + i * 7;
+      let html = strip.lastElementChild ? strip.lastElementChild.outerHTML : cellHTML(kind, randLayer(kind));
+      for (let k = 1; k < N; k++) html += cellHTML(kind, randLayer(kind));
+      html += cellHTML(kind, target);
+      strip.innerHTML = html;
+      const H = strip.firstElementChild.offsetHeight;
+      gsap.set(strip, { y:0 });
+      win.classList.add('blur');
+      let last = 0;
+      gsap.to(strip, {
+        y: -N * H, duration: 1.5 + i * .6, ease: 'power3.out',
+        onUpdate(){
+          const idx = Math.floor(-gsap.getProperty(strip, 'y') / H);
+          if (idx !== last){ last = idx; Sound.tick(); }
+          if (this.progress() > .8) win.classList.remove('blur');
+        },
+        onComplete(){
+          strip.innerHTML = strip.lastElementChild.outerHTML; gsap.set(strip, { y:0 });
+          win.classList.remove('blur'); win.classList.add('hit');
+          setTimeout(() => win.classList.remove('hit'), 380);
+          Sound.slam();
+          gsap.fromTo(win, { y:8, rotation:gsap.utils.random(-3, 3) }, { y:0, rotation:0, duration:.5, ease:'elastic.out(1,.3)' });
+          res();
+        },
+      });
+    })));
+  }
+
+  /* ---------- stage ---------- */
+  function blankStage(){
+    stage.style.setProperty('--bg', '#c9c7bf');
+    stage.innerHTML = `<div class="art-inner"><div class="art-grid"></div></div><div class="art-noise"></div>`;
+    stage.classList.remove('pinned');
+  }
+  function startChaos(){
+    const inner = stage.querySelector('.art-inner');
+    return setInterval(() => {
+      const l = randLayer(pick(Math.random, ['concrete', 'steel', 'type']));
+      const tmp = document.createElement('div');
+      tmp.innerHTML = layerHTML(l, 0, true);
+      const el = tmp.firstElementChild; el.classList.add('chaos');
+      inner.appendChild(el);
+      gsap.fromTo(el, { scale:2.6, opacity:0, rotation:gsap.utils.random(-180, 180) }, { scale:1, opacity:1, rotation:0, duration:.16, ease:'power2.in' });
+      const all = inner.querySelectorAll('.chaos');
+      if (all.length > 14) all[0].remove();
+      stage.style.setProperty('--bg', pick(Math.random, ['#c9c7bf', '#d9d7cf', '#bfbdb5', '#E8FF00']));
+    }, 70);
+  }
+  function renderStage(art){ stage.style.setProperty('--bg', art.bg); stage.innerHTML = artInnerHTML(art, false); }
+  function placeStamp(art, animate){
+    const s = document.createElement('div');
+    s.className = 'stamp';
+    s.innerHTML = `<span class="s1">完成</span><span class="s2">№${pad(art.id)} · SEED ${pad(art.seed >>> 0, 10).slice(-8)}</span>`;
+    const r = mulberry32(art.seed ^ 77), corner = Math.floor(r() * 4);
+    Object.assign(s.style, { [corner < 2 ? 'top' : 'bottom']: (4 + r() * 6) + '%', [corner % 2 ? 'right' : 'left']: (4 + r() * 6) + '%' });
+    stage.appendChild(s);
+    const rot = -8 - r() * 10;
+    if (!animate){ gsap.set(s, { rotation:rot }); return; }
+    gsap.fromTo(s, { scale:3.6, opacity:0, rotation:rot - 25 }, {
+      scale:1, opacity:1, rotation:rot, duration:.28, ease:'power4.in',
+      onComplete(){ Sound.stamp(); gsap.fromTo(stageWrap, { x:-10, y:4 }, { x:0, y:0, duration:.6, ease:'elastic.out(1,.3)' }); },
+    });
+  }
+  function composeFinal(art){
+    return new Promise(res => {
+      renderStage(art);
+      gsap.timeline({ onComplete:res })
+        .from(stage.querySelector('.art-grid'), { opacity:0, scale:1.2, duration:.2 })
+        .from(stage.querySelectorAll('.lyr'), {
+          opacity:0, scale:2.6, y:-90, rotation:() => gsap.utils.random(-120, 120),
+          duration:.3, ease:'power4.in',
+          stagger:{ each:.09, onComplete(){ Sound.thud(.22); } },
+          clearProps:'transform,opacity',
+        })
+        .to(stage, { filter:'brightness(2.2) contrast(1.6)', duration:.05 })
+        .to(stage, { filter:'none', duration:.35 });
+    });
+  }
+  function showCurrent(art){
+    $('#currentTitle').textContent = art.title;
+    $('#dissectBtn').classList.remove('hidden');
+    $('#toArchive').classList.remove('hidden');
+    $('#seedLbl').textContent = pad(art.seed >>> 0, 10).slice(-8);
+  }
+  function clearCurrent(){
+    current = null; blankStage(); stageHint.classList.remove('hidden');
+    $('#currentTitle').textContent = '— 작품이 파기되었다 —';
+    $('#dissectBtn').classList.add('hidden'); $('#toArchive').classList.add('hidden');
+    $$('[data-archive-count]').forEach(el => { el.textContent = pad(archive.list().length, 2); });
+  }
+  const openCurrent = () => current && CL.openModal(current, { onDelete: a => { if (current && current.id === a.id) clearCurrent(); } });
+
+  /* ---------- trigger ---------- */
+  async function trigger(source = 'lever'){
+    if (spinning || modalOpen()) return;
+    spinning = true;
+    Sound.init(); Sound.clank();
+    energy = 0;
+    CL.breakGrid(source);
+
+    const entry = { id: archive.nextId(), seed: ((Math.random() * 2 ** 31) ^ Date.now()) >>> 0, t: Date.now() };
+    const art = buildArt(entry);
+
+    stageHint.classList.add('hidden');
+    $('#spinLabel').classList.remove('hidden');
+    knob.classList.add('armed');
+    setStatus(`SPINNING [${source.toUpperCase()}] — 콘크리트, 철골, 문자의 파편이 뒤섞이고 있다.`);
+    blankStage();
+    const chaos = startChaos();
+
+    await spinReels(art);
+    clearInterval(chaos);
+    setStatus('LOCKING — 회전이 멈췄다. 레이어가 내려앉는다.');
+    await composeFinal(art);
+    placeStamp(art, true);
+    stage.classList.add('pinned');
+
+    archive.add(entry);
+    current = art;
+    showCurrent(art);
+    $$('[data-archive-count]').forEach(el => { el.textContent = pad(archive.list().length, 2); });
+    $('#spinLabel').classList.add('hidden');
+    knob.classList.remove('armed');
+    setStatus(`FIXED №${pad(art.id)} — ${art.stats.n}개의 레이어가 한 점의 작품이 되었다. 작품을 누르면 구조가 드러난다.`);
+    spinning = false;
+  }
+
+  /* ---------- lever ---------- */
+  const maxY = () => Math.max(60, track.clientHeight - knob.offsetHeight);
+  gsap.ticker.add(() => { rod.style.height = (gsap.getProperty(knob, 'y') + 58) + 'px'; });
+  const springBack = () => gsap.to(knob, { y:0, duration:1, ease:'elastic.out(1,.32)' });
+  function autoPull(){
+    if (spinning || modalOpen()) return;
+    Sound.init();
+    gsap.timeline()
+      .to(knob, { y:maxY(), duration:.22, ease:'power3.in' })
+      .add(() => trigger('lever'))
+      .to(knob, { y:0, duration:1, ease:'elastic.out(1,.32)' }, '+=.08');
+  }
+  let ldrag = null;
+  knob.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    if (spinning) return;
+    Sound.init();
+    knob.setPointerCapture(e.pointerId);
+    gsap.killTweensOf(knob);
+    ldrag = { y0: e.clientY - gsap.getProperty(knob, 'y'), moved: 0, sy: e.clientY };
+  });
+  knob.addEventListener('pointermove', e => {
+    if (!ldrag) return;
+    const y = clamp(e.clientY - ldrag.y0, 0, maxY());
+    ldrag.moved = Math.max(ldrag.moved, Math.abs(e.clientY - ldrag.sy));
+    gsap.set(knob, { y, rotation:(y / maxY()) * 4 });
+    knob.classList.toggle('armed', y > maxY() * .7);
+  });
+  const endLever = e => {
+    if (!ldrag) return;
+    e && e.stopPropagation();
+    const d = ldrag; ldrag = null;
+    const y = gsap.getProperty(knob, 'y');
+    gsap.to(knob, { rotation:0, duration:.3 });
+    if (d.moved < 6){ knob.classList.remove('armed'); autoPull(); return; }
+    if (y > maxY() * .7) gsap.to(knob, { y:maxY(), duration:.06, onComplete(){ trigger('lever'); springBack(); } });
+    else { knob.classList.remove('armed'); springBack(); }
+  };
+  knob.addEventListener('pointerup', endLever);
+  knob.addEventListener('pointercancel', endLever);
+  knob.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); autoPull(); } });
+  $('#leverHouse').addEventListener('click', e => { if (knob.contains(e.target)) return; autoPull(); });
+  $('#pullBtn').addEventListener('click', autoPull);
+  $('#dissectBtn').addEventListener('click', openCurrent);
+  document.addEventListener('keydown', e => {
+    if (e.code !== 'Space' || modalOpen() || !inRoom()) return;
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (['button', 'input', 'textarea', 'a'].includes(tag)) return;
+    e.preventDefault(); autoPull();
+  });
+
+  /* ---------- scroll / drag velocity ---------- */
+  let lastT = performance.now(), lastDir = 0, lastSource = 'scroll';
+  window.addEventListener('wheel', e => {
+    if (spinning || modalOpen() || !inRoom()) return;
+    const mult = e.deltaMode === 1 ? 33 : e.deltaMode === 2 ? 400 : 1;
+    const d = Math.min((Math.abs(e.deltaY) + Math.abs(e.deltaX)) * mult, 240);
+    const dir = Math.sign(e.deltaY);
+    let add = d / 1300;
+    if (dir && lastDir && dir !== lastDir) add += .09;
+    if (dir) lastDir = dir;
+    energy += add; lastSource = 'scroll';
+  }, { passive:true });
+
+  let sp = null;
+  stage.addEventListener('pointerdown', e => { sp = { lx:e.clientX, ly:e.clientY, t:performance.now(), moved:0 }; });
+  stage.addEventListener('pointermove', e => {
+    if (!sp) return;
+    const now = performance.now();
+    const dist = Math.hypot(e.clientX - sp.lx, e.clientY - sp.ly);
+    const v = dist / Math.max(8, now - sp.t);
+    sp.lx = e.clientX; sp.ly = e.clientY; sp.t = now; sp.moved += dist;
+    if (!spinning && !modalOpen() && inRoom()){ energy += Math.min(v, 6) * .04; lastSource = 'drag'; }
+  });
+  stage.addEventListener('pointerup', () => { if (sp && sp.moved < 8 && current && !spinning) openCurrent(); sp = null; });
+  stage.addEventListener('pointerleave', () => { sp = null; });
+
+  function loop(t){
+    const dt = t - lastT; lastT = t;
+    energy *= Math.pow(.965, dt / 16.67);
+    const pct = Math.min(energy, 1);
+    meterFill.style.width = (pct * 100).toFixed(1) + '%';
+    meterFill.classList.toggle('hot', pct > .7);
+    meterPct.textContent = Math.round(pct * 100) + '%';
+    if (energy >= 1 && !spinning && !modalOpen() && inRoom()){
+      energy = 0;
+      gsap.timeline().to(knob, { y:maxY(), duration:.15, ease:'power3.in' }).to(knob, { y:0, duration:1, ease:'elastic.out(1,.3)' });
+      trigger(lastSource);
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  window.__enter_machine = () => { if (current && !archive.list().some(x => x.id === current.id)) clearCurrent(); };
+
+  /* ---------- init ---------- */
+  const start = () => {
+    const list = archive.list();
+    if (list.length){
+      current = buildArt(list[0]);
+      renderStage(current); placeStamp(current, false);
+      stage.classList.add('pinned'); stageHint.classList.add('hidden');
+      showCurrent(current);
+      setStatus(`LAST №${pad(current.id)} — 가장 최근의 우연. 레버를 당기면 그 위에 새 판이 깔린다.`);
+    }
+    gsap.from('#stageWrap', { x:-80, opacity:0, rotation:-4, duration:.9, ease:'back.out(1.6)', delay:.5 });
+    gsap.from('#machine', { x:80, opacity:0, rotation:6, duration:.9, ease:'back.out(1.6)', delay:.6 });
+  };
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(start); else start();
+})();
+</script>
+<script>
+/* ===== PAGE 02 · 보관소 ===== */
+(() => {
+  const { $, $$, mulberry32, pad, DOM_LABEL, buildArt, artInnerHTML, archive, Sound } = CL;
+  let filter = 'all';
+
+  function renderFilters(arts){
+    const count = k => k === 'all' ? arts.length : arts.filter(a => a.stats.dominant === k).length;
+    const rots = [-2, 1.5, -1, 2.5, -2.5];
+    $('#filters').innerHTML = Object.keys(DOM_LABEL).map((k, i) => `
+      <button class="btn-brut ${k === filter ? 'is-active' : 'ghost'} text-xs md:text-sm px-3 md:px-4 py-2" data-f="${k}" style="transform:rotate(${rots[i]}deg)">
+        ${DOM_LABEL[k]} <span class="font-mono ml-1">[${pad(count(k), 2)}]</span>
+      </button>`).join('');
+    $$('#filters button').forEach(b => b.addEventListener('click', () => {
+      if (filter === b.dataset.f) return;
+      filter = b.dataset.f; Sound.init(); Sound.tick(); Sound.thud(.25);
+      render(true);
+    }));
+  }
+
+  function render(animate){
+    const all = archive.list().map(buildArt);
+    renderFilters(all);
+    const arts = all.filter(a => filter === 'all' || a.stats.dominant === filter);
+    $('#grid').innerHTML = arts.map(a => {
+      const r = mulberry32(a.seed ^ 1234);
+      const rot = (r() * 7 - 3.5).toFixed(2), dy = Math.round(r() * 40 - 10);
+      return `
+        <button class="card" data-id="${a.id}" style="--r:${rot}deg;--dy:${dy}px">
+          <div class="art" style="--bg:${a.bg}">${artInnerHTML(a, true)}</div>
+          <div class="p-2 md:p-3">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[10px]">№${pad(a.id)}</span>
+              <span class="kbadge k-${a.stats.dominant}">${a.stats.dominant.toUpperCase()}</span>
+            </div>
+            <div class="font-kr text-sm md:text-lg leading-tight mt-1">${a.title.split('—')[1] || a.title}</div>
+            <div class="font-mono text-[9px] mt-1 opacity-70">${a.stats.n} LAYERS · 붕괴 ${a.stats.collapse}%</div>
+          </div>
+        </button>`;
+    }).join('');
+    $$('#grid .card').forEach(c => c.addEventListener('click', () => {
+      const e = archive.list().find(x => x.id === +c.dataset.id);
+      if (e) CL.openModal(buildArt(e), { onDelete: () => render(true) });
+    }));
+    $('#emptyState').classList.toggle('hidden', arts.length > 0);
+    $('#archCount').textContent = all.length;
+    $$('[data-archive-count]').forEach(el => { el.textContent = pad(all.length, 2); });
+    if (animate && arts.length && window.gsap){
+      gsap.from('#grid .card', { y:60, opacity:0, rotation:() => gsap.utils.random(-25, 25), duration:.45, ease:'back.out(1.8)', stagger:.04, clearProps:'transform,opacity' });
+    }
+  }
+
+  let clearArmed = false;
+  $('#clearBtn').addEventListener('click', e => {
+    if (!archive.list().length) return;
+    if (!clearArmed){ clearArmed = true; e.currentTarget.textContent = '되돌릴 수 없다. 다시 클릭'; e.currentTarget.classList.add('is-active'); return; }
+    archive.clear(); filter = 'all';
+    clearArmed = false; e.currentTarget.textContent = '보관소 비우기'; e.currentTarget.classList.remove('is-active');
+    render(false);
+  });
+
+  window.__enter_archive = () => render(true);
+  const start = () => render(false);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(start); else start();
+})();
+</script>
+<script>
+/* ===== ROUTER: one site, three pages ===== */
+
+(() => {
+  const PAGES = { prologue:['00','서문'], machine:['01','기계'], archive:['02','보관소'] };
+  const TITLES = { prologue:'우연을 레이어링하다 — Layering Chance', machine:'01 기계 — 우연을 레이어링하다', archive:'02 보관소 — 우연을 레이어링하다' };
+  const curtain = document.getElementById('curtain');
+  const cTitle = curtain.querySelector('.c-title');
+  const routeOf = () => { const m = location.hash.match(/^#\/(\w+)/); return m && PAGES[m[1]] ? m[1] : 'prologue'; };
+
+  function show(p){
+    document.querySelectorAll('[data-page]').forEach(el => { el.hidden = el.dataset.page !== p; });
+    document.body.dataset.room = p;
+    document.querySelectorAll('[data-room-link]').forEach(a => a.classList.toggle('is-here', a.dataset.roomLink === p));
+    document.querySelectorAll('[data-archive-count]').forEach(el => { el.textContent = CL.pad(CL.archive.list().length, 2); });
+    document.title = TITLES[p];
+    window.scrollTo(0, 0);
+    const hook = window['__enter_' + p]; if (hook) hook();
+  }
+
+  show(routeOf());
+  cTitle.innerHTML = '우연을<br>레이어링하다';
+
+  window.addEventListener('hashchange', () => {
+    const p = routeOf();
+    if (CL.isModalOpen()) CL.closeModal();
+    if (!window.gsap){ show(p); return; }
+    cTitle.innerHTML = PAGES[p][0] + '<br>' + PAGES[p][1];
+    CL.Sound.init(); CL.Sound.slam();
+    gsap.killTweensOf(curtain);
+    gsap.timeline()
+      .fromTo(curtain, { yPercent:-101 }, { yPercent:0, duration:.45, ease:'power4.in' })
+      .add(() => show(p))
+      .to(curtain, { yPercent:-101, duration:.7, ease:'power4.inOut' }, '+=.12');
+  });
+})();
+
 </script>
 </body>
 </html>
