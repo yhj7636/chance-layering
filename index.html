@@ -478,6 +478,75 @@ body.theme-wall .hdr{ background:rgba(239,237,230,.88); }
 @media (max-width:620px){ .slot-readout dd{ font-size:13px; } .reel-win{ --cell:84px; } .room-title p:not(.mono-s){ font-size:14px; } }
 body{ word-break:keep-all; overflow-wrap:break-word; }
 
+/* =========================================================
+   v4 — two button families, one size
+   .btn  = navigation (goes somewhere)  → square, flat
+   .act  = interaction (does something) → pill, physical, with indicator
+   ========================================================= */
+.btn, .btn.xl, .act{ min-height:52px; padding:0 24px; font-size:15px; }
+.act{ position:relative; display:inline-flex; align-items:center; justify-content:center; gap:10px; font-weight:900; letter-spacing:.01em;
+  border-radius:999px; border:2px solid var(--ink); background:var(--ink); color:var(--paper-3);
+  box-shadow:0 5px 0 rgba(0,0,0,.55); transform:translateY(0); transition:transform .08s, box-shadow .08s, background .2s, color .2s; user-select:none; }
+.act::before{ content:''; width:9px; height:9px; border-radius:50%; background:currentColor; opacity:.9; box-shadow:0 0 0 3px rgba(255,255,255,.12); flex:none; }
+.act:hover{ background:var(--red); border-color:var(--red); color:#fff; }
+.act:active{ transform:translateY(4px); box-shadow:0 1px 0 rgba(0,0,0,.55); }
+.act.act-ghost{ background:transparent; color:var(--ink); box-shadow:0 5px 0 rgba(28,27,25,.25); }
+.act.act-ghost:hover{ background:var(--ink); color:var(--paper-3); }
+.act.on, .act.warn{ background:var(--red); border-color:var(--red); color:#fff; }
+.act:disabled{ opacity:.32; pointer-events:none; box-shadow:none; }
+.act kbd{ margin-left:2px; }
+.room .act{ background:var(--ra); border-color:var(--ra); color:var(--rb); box-shadow:0 5px 0 rgba(0,0,0,.5); }
+.room .act:hover{ background:var(--rc); border-color:var(--rc); color:var(--rb); }
+.room .act.act-ghost{ background:transparent; color:var(--rc); border-color:var(--rc); box-shadow:0 5px 0 color-mix(in srgb, var(--rc) 30%, transparent); }
+.room .act.act-ghost:hover{ background:var(--rc); color:var(--rb); }
+.room-slot .cab .act{ width:100%; margin-top:16px; }
+.actions .act{ width:100%; }
+/* "do this next" pulse */
+@keyframes cue{ 0%{ box-shadow:0 5px 0 rgba(0,0,0,.5), 0 0 0 0 color-mix(in srgb, var(--cue-c, #e5381f) 70%, transparent); } 70%{ box-shadow:0 5px 0 rgba(0,0,0,.5), 0 0 0 14px transparent; } 100%{ box-shadow:0 5px 0 rgba(0,0,0,.5), 0 0 0 0 transparent; } }
+.act.cue{ animation:cue 1.6s infinite; }
+.room .act.cue{ --cue-c:var(--ra); }
+.room .act.act-ghost.cue{ --cue-c:var(--rc); }
+
+/* speaker icon */
+.hdr-sound{ width:40px; height:40px; padding:0; display:grid; place-items:center; border-radius:50%; border:1.5px solid currentColor; }
+.hdr-sound:hover{ background:currentColor; }
+.hdr-sound:hover svg{ color:var(--paper-3); }
+body.theme-dark .hdr-sound:hover svg, body.theme-navy .hdr-sound:hover svg{ color:#111; }
+.hdr-sound.off{ opacity:.5; }
+@media (max-width:720px){ .hdr-sound{ display:grid; width:34px; height:34px; } }
+
+/* step guide above each machine */
+.steps-mini{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:14px; }
+.steps-mini li{ display:flex; align-items:center; gap:10px; padding:9px 12px; border:1px solid var(--rl); font-size:13px; font-weight:700; opacity:.45; transition:opacity .3s, background .3s, color .3s, border-color .3s; }
+.steps-mini li b{ width:22px; height:22px; flex:none; display:grid; place-items:center; border-radius:50%; border:1.5px solid currentColor; font-family:var(--mono); font-size:11px; }
+.steps-mini li.done{ opacity:.7; }
+.steps-mini li.done b{ background:currentColor; }
+.steps-mini li.done b::after{ content:''; }
+.steps-mini li.now{ opacity:1; background:var(--ra); color:var(--rb); border-color:var(--ra); }
+@media (max-width:620px){ .steps-mini li span{ font-size:11.5px; line-height:1.3; } }
+
+/* gesture cue on the plate */
+.cue-ring{ position:absolute; left:50%; top:50%; z-index:8; transform:translate(-50%,-50%); pointer-events:none; display:flex; flex-direction:column; align-items:center; gap:14px; }
+.cue-ring i{ width:64px; height:64px; border-radius:50%; border:2.5px solid var(--ra); background:color-mix(in srgb, var(--ra) 22%, transparent); animation:ring 1.4s infinite; }
+.cue-ring span{ font-weight:900; font-size:15px; padding:7px 12px; background:var(--rc); color:var(--rb); white-space:nowrap; }
+@keyframes ring{ 0%{ transform:scale(.7); opacity:1; } 80%{ transform:scale(1.5); opacity:0; } 100%{ opacity:0; } }
+
+/* "click to dissect" tip on finished plates */
+.stage-box{ position:relative; }
+.pin-tip{ display:none; position:absolute; right:10px; top:10px; z-index:9; pointer-events:none; font-family:var(--mono); font-size:11px; letter-spacing:.1em; padding:7px 10px; background:var(--rc,#1c1b19); color:var(--rb,#f4f2ed); opacity:0; transition:opacity .25s; }
+.stage.pinned ~ .pin-tip{ display:block; }
+.stage-box:hover .pin-tip{ opacity:1; }
+.work-frame{ position:relative; }
+.work-frame::after{ content:'눌러서 층별로 보기'; position:absolute; left:50%; bottom:16px; transform:translate(-50%,6px); font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; padding:6px 10px; background:var(--ink); color:var(--paper-3); opacity:0; transition:opacity .3s, transform .3s; white-space:nowrap; pointer-events:none; }
+.work:hover .work-frame::after{ opacity:1; transform:translate(-50%,0); }
+
+/* décollage: cut line + falling scrap */
+.cut{ position:absolute; inset:0; width:100%; height:100%; }
+.cut polyline{ fill:rgba(40,71,212,.12); stroke:#2847d4; stroke-width:2; stroke-dasharray:6 4; vector-effect:non-scaling-stroke; stroke-linejoin:round; }
+.cut circle{ fill:#2847d4; }
+.scrap{ position:absolute; inset:0; box-shadow:0 0 0 1px rgba(0,0,0,.2); }
+.wall .art{ cursor:crosshair; }
+
 </style>
 </head>
 <body>
@@ -490,7 +559,7 @@ body{ word-break:keep-all; overflow-wrap:break-word; }
     <a href="#/machine" data-room-link="machine"><i>01</i>기계실</a>
     <a href="#/archive" data-room-link="archive"><i>02</i>보관소<sup data-archive-count>00</sup></a>
   </nav>
-  <button class="hdr-sound" data-sound>SOUND ON</button>
+  <button class="hdr-sound" data-sound aria-label="소리 켜기 / 끄기" title="소리 켜기 / 끄기"></button>
 </header>
 
 <!-- ================================================================
@@ -503,7 +572,7 @@ body{ word-break:keep-all; overflow-wrap:break-word; }
       <h1 class="pro-title" aria-label="우연을 레이어링하다"><span class="l1">우연을</span><span class="l2">레이어링</span><span class="l3">하다</span></h1>
       <p class="pro-lede">콘크리트, 철골, 글자 조각을 <em>우연에 맡겨 한 겹씩 쌓아</em> 한 장의 콜라주를 만들다.</p>
       <p class="pro-sub">기계실에 놓인 네 대의 기계 중 하나를 골라 작동시키면 조각들이 화면 위에 쌓여 세상에 하나뿐인 작품이 됩니다. 완성된 작품은 보관소에 걸리고, 언제든 다시 한 층씩 분해해 볼 수 있습니다.</p>
-      <div class="pro-cta"><a class="btn xl" href="#/machine">기계실 입장</a><a class="btn btn-ghost xl" href="#/archive">보관소 보기</a></div>
+      <div class="pro-cta"><a class="btn" href="#/machine">기계실 입장</a><a class="btn btn-ghost" href="#/archive">보관소 보기</a></div>
     </div>
     <figure class="pro-plate">
       <div class="plate-frame"><div class="art" id="livePlate"></div></div>
@@ -579,7 +648,7 @@ body{ word-break:keep-all; overflow-wrap:break-word; }
     <div class="room-body">
       <div class="room-plate">
         <div class="slot-plate"><div class="art stage" id="st-slot"></div></div>
-        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="btn" data-dissect hidden>해부하기</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
+        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="act" data-dissect hidden>해부하기</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
       </div>
       <div class="slot-rig">
         <div class="cab">
@@ -593,7 +662,7 @@ body{ word-break:keep-all; overflow-wrap:break-word; }
           <dl class="readout slot-readout"><div><dt>SEED</dt><dd id="slotSeed">--------</dd></div><div><dt>LAYERS</dt><dd id="slotLayers">--</dd></div><div><dt>SCHEME</dt><dd id="slotScheme">-----</dd></div></dl>
           <div class="slot-meter"><p class="mono-s"><span>SHAKE · 흔들림</span><span id="shakePct">0%</span></p><div class="bar"><i id="shakeBar"></i></div></div>
           <p class="status slot-status" data-status>레버를 끝까지 당기거나, 아래 버튼을 누르세요.</p>
-          <button class="btn" id="pullBtn">레버 당기기 <kbd>SPACE</kbd></button>
+          <button class="act" id="pullBtn">레버 당기기 <kbd>SPACE</kbd></button>
         </div>
         <div class="lever-col" id="leverCol"><div class="lever-slot"></div><div class="lever-arm" id="leverArm"><div class="lever-ball"></div></div><div class="lever-hub"></div></div>
       </div>
@@ -614,7 +683,7 @@ body{ word-break:keep-all; overflow-wrap:break-word; }
           <div style="position:relative"><div class="art stage" id="st-crane"></div></div>
           <div class="crane-ground"></div>
         </div>
-        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="btn" data-dissect hidden>해부하기</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
+        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="act" data-dissect hidden>해부하기</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
       </div>
       <div class="hud">
         <div class="panel-h"><p class="mono-s">SITE LOG — 7 LIFTS</p><p class="mono-s" id="craneFitTxt">FIT 0 · MISS 0</p></div>
@@ -623,7 +692,7 @@ body{ word-break:keep-all; overflow-wrap:break-word; }
         <div class="telemetry"><div><span>TROLLEY X</span><b id="tX">—</b></div><div><span>HOOK Y</span><b id="tY">—</b></div><div><span>SWAY</span><b id="tR">—</b></div><div><span>TO TARGET</span><b id="tD">—</b></div><div><span>SPEED</span><b id="tS">×1.0</b></div><div><span>WIND</span><b id="tW">—</b></div></div>
         <div class="acc" id="acc"></div>
         <p class="status crane-status" data-status>작업 시작을 누르면 크레인이 움직입니다.</p>
-        <div class="actions"><button class="btn btn-ghost" id="craneStart">작업 시작</button><button class="btn" id="craneDrop" disabled>떨어뜨리기 <kbd>SPACE</kbd></button></div>
+        <div class="actions"><button class="act act-ghost" id="craneStart">작업 시작</button><button class="act" id="craneDrop" disabled>떨어뜨리기 <kbd>SPACE</kbd></button></div>
       </div>
     </div>
   </section>
@@ -642,7 +711,7 @@ body{ word-break:keep-all; overflow-wrap:break-word; }
           <div class="ruler" id="ruler"></div>
           <div class="tank-glass"><div class="art stage" id="st-sediment"></div></div>
         </div>
-        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="btn" data-dissect hidden>해부하기</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
+        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="act" data-dissect hidden>해부하기</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
       </div>
       <div>
         <div class="strata-log"><h4><span>STRATA LOG — 지층 기록</span><span id="sedTotal">0 / 40</span></h4><ol id="strataList"><li class="empty">아직 쌓인 지층이 없습니다.</li></ol></div>
@@ -650,7 +719,7 @@ body{ word-break:keep-all; overflow-wrap:break-word; }
           <dl class="readout"><div><dt>지층</dt><dd id="sedStrata">0</dd></div><div><dt>퇴적 높이</dt><dd id="sedH">0<small>cm</small></dd></div><div><dt>지금 붓는 재료</dt><dd id="sedKind" style="font-size:20px">—</dd></div></dl>
           <div class="bar" style="margin-top:14px"><i id="sedBar"></i></div>
           <p class="status" data-status style="margin-top:14px">새 판 깔기를 누르고, 수조를 눌러 조각을 부어 보세요.</p>
-          <div class="actions"><button class="btn btn-ghost" id="sedStart">새 판 깔기</button><button class="btn" id="sedDone" disabled>굳히기</button></div>
+          <div class="actions"><button class="act act-ghost" id="sedStart">새 판 깔기</button><button class="act" id="sedDone" disabled>굳히기</button></div>
         </div>
       </div>
     </div>
@@ -660,13 +729,13 @@ body{ word-break:keep-all; overflow-wrap:break-word; }
   <section class="room room-decollage wrap" data-room="decollage" hidden>
     <div class="room-head">
       <div class="room-no">04</div>
-      <div class="room-title"><p class="mono-s">ROOM 04 — DÉCOLLAGE WALL · 벗겨 내기</p><h2>데콜라주 기계</h2><p>기계가 벽에 포스터 다섯 장을 겹쳐 붙입니다. 벽을 문질러 찢어 내세요. 같은 자리를 오래 긁을수록 더 깊은 층이 드러납니다. 무엇이 숨어 있는지는 찢기 전까지 알 수 없습니다. 쌓는 대신 벗겨 내는 레이어링입니다.</p></div>
+      <div class="room-title"><p class="mono-s">ROOM 04 — DÉCOLLAGE WALL · 벗겨 내기</p><h2>데콜라주 기계</h2><p>기계가 벽에 포스터 다섯 장을 겹쳐 붙입니다. 한 번 누르면 맨 위의 한 겹만 삼각형으로 찢어지고, 누른 채 선을 그으면 그 선을 따라 직선으로 찢어집니다. 선으로 영역을 둘러싸면 땅따먹기처럼 그 영역이 통째로 떨어집니다. 손을 뗐다가 같은 자리를 다시 찢으면 그 아래 한 겹이 찢어집니다.</p></div>
       <div class="room-nav"><a class="room-back" href="#/machine">기계실 전체</a><div class="room-switch" data-switch></div></div>
     </div>
     <div class="room-body">
       <div class="room-plate">
-        <div class="wall"><div class="art stage" id="st-decollage"></div><span class="wall-tag">RUE — WALL 04 · 문질러서 찢기</span></div>
-        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="btn" data-dissect hidden>해부하기</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
+        <div class="wall"><div class="art stage" id="st-decollage"></div><span class="wall-tag">RUE — WALL 04 · 한 번에 한 겹</span></div>
+        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="act" data-dissect hidden>해부하기</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
       </div>
       <div>
         <div class="panel">
@@ -674,9 +743,9 @@ body{ word-break:keep-all; overflow-wrap:break-word; }
           <div class="sheets-list" id="sheetsList"></div>
         </div>
         <div class="panel">
-          <dl class="readout"><div><dt>찢긴 면적</dt><dd><span id="decTorn">0</span><small>%</small></dd></div><div><dt>드러난 층</dt><dd id="decLayers">0<small>/4</small></dd></div><div><dt>문지른 거리</dt><dd><span id="decDist">0</span><small>m</small></dd></div></dl>
+          <dl class="readout"><div><dt>맨 위 찢긴 면적</dt><dd><span id="decTorn">0</span><small>%</small></dd></div><div><dt>드러난 층</dt><dd id="decLayers">0<small>/4</small></dd></div><div><dt>찢은 횟수</dt><dd><span id="decDist">0</span><small>번</small></dd></div></dl>
           <p class="status" data-status style="margin-top:14px">포스터 붙이기를 누르면 기계가 벽을 준비합니다.</p>
-          <div class="actions"><button class="btn btn-ghost" id="decStart">포스터 붙이기</button><button class="btn" id="decDone" disabled>이대로 고정</button></div>
+          <div class="actions"><button class="act act-ghost" id="decStart">포스터 붙이기</button><button class="act" id="decDone" disabled>이대로 고정</button></div>
         </div>
       </div>
     </div>
@@ -691,8 +760,8 @@ body{ word-break:keep-all; overflow-wrap:break-word; }
     <div class="arc-head"><h1>보관소</h1><p>네 대의 기계에서 완성된 작품이 한 점씩 이곳에 걸립니다. 기계별, 재료별로 모아 볼 수 있고, 작품을 누르면 층별로 분해해 볼 수 있습니다. <span class="mono-s">— <span id="arcCount">0</span> WORKS</span></p></div>
     <div class="filters"><div class="fgroup" id="fMachine"><span>MACHINE</span></div><div class="fgroup" id="fMat"><span>MATERIAL</span></div></div>
     <div class="works" id="works"></div>
-    <div class="empty-wall" id="emptyWall" hidden><div><b>아직 이 벽에는<br>아무것도 걸리지 않았습니다.</b><p>첫 번째 작품은 기계실에서 시작됩니다.</p><a class="btn xl" href="#/machine">기계실 입장</a></div></div>
-    <div class="arc-tools"><button class="btn btn-ghost" id="clearBtn">보관소 비우기</button></div>
+    <div class="empty-wall" id="emptyWall" hidden><div><b>아직 이 벽에는<br>아무것도 걸리지 않았습니다.</b><p>첫 번째 작품은 기계실에서 시작됩니다.</p><a class="btn" href="#/machine">기계실 입장</a></div></div>
+    <div class="arc-tools"><button class="act act-ghost" id="clearBtn">보관소 비우기</button></div>
   </section>
   <footer class="foot"><span>우연을 레이어링하다 · LAYERING CHANCE · 2026</span><span>작품은 이 브라우저 안에 보관됩니다</span></footer>
 </main>
@@ -1190,7 +1259,7 @@ function machineLine(a){
   switch (a.machine){
     case 'crane':     return `크레인 기계로 만든 작품입니다. 관람자가 고른 ${a.layers.length}번의 순간에 조각이 떨어졌고, 그중 ${x.fit || 0}개는 표적에 맞아 격자에 반듯하게 놓였으며 ${a.layers.length - (x.fit || 0)}개는 흔들리던 각도 그대로 굳었습니다.`;
     case 'sediment':  return `퇴적 기계로 만든 작품입니다. 관람자가 ${x.strata || 1}번에 걸쳐 조각을 부었고, 오래 부은 만큼 두꺼운 ${x.strata || 1}개의 지층이 바닥부터 쌓였습니다.`;
-    case 'decollage': return `데콜라주 기계로 만든 작품입니다. 포스터 ${a.sheets.length}장이 겹쳐 붙은 벽에서 관람자가 면적의 ${x.torn || 0}%를 찢어 내, 아래에 숨어 있던 층을 드러냈습니다.`;
+    case 'decollage': return `데콜라주 기계로 만든 작품입니다. 포스터 ${a.sheets.length}장이 겹쳐 붙은 벽에서 관람자가 ${x.peels ? x.peels + '번에 걸쳐' : ''} 한 겹씩 찢어 내, 아래에 숨어 있던 층을 드러냈습니다.`;
     default:          return '슬롯 기계로 만든 작품입니다. 관람자는 레버만 당겼고, 재료와 위치와 순서는 모두 기계가 정했습니다.';
   }
 }
@@ -1327,8 +1396,8 @@ function openModal(art, opts = {}){
         <p class="mono-s">CATALOGUE No.${pad(art.id)}</p>
         <div class="cat-frame">${artBox(art, '', { nometa:true }).replace('class="art ', 'id="mArt" class="art ')}</div>
         <div class="cat-actions">
-          <button class="btn" id="explodeBtn">층별로 분해하기</button>
-          <button class="btn btn-ghost" id="deleteBtn">작품 파기</button>
+          <button class="act" id="explodeBtn">층별로 분해하기</button>
+          <button class="act act-ghost" id="deleteBtn">작품 파기</button>
         </div>
         <p class="mono-s dim">오른쪽 목록 위에 커서를 올리면 해당 층만 남습니다.</p>
       </div>
@@ -1348,7 +1417,7 @@ function openModal(art, opts = {}){
           ${['concrete', 'steel', 'type'].filter(k => st.cnt[k]).map(k => `<span class="comp-${k}" style="width:${seg(k)}%"></span>`).join('')}
         </div>
         <p class="mono-s">${['concrete', 'steel', 'type'].map(k => `<span class="legend comp-${k}-t">${KINDS[k].ko} ${st.cnt[k]}</span>`).join('')}</p>
-        <p class="mono-s cat-stack-h"><span>LAYER STACK</span><span>위 → 아래</span></p>
+        <p class="mono-s cat-stack-h"><span>LAYER STACK</span><span>위에서 아래로</span></p>
         <ul class="cat-rows" id="mRows">${rows}</ul>
       </div>
     </div>`;
@@ -1387,10 +1456,11 @@ function closeModal(){
 /* ---------- global chrome ---------- */
 function initChrome(){
   FR.injectDefs();
+  const SPK = on => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" stroke="none"/>${on ? '<path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a7.5 7.5 0 0 1 0 11"/>' : '<path d="M16 9.5l5 5M21 9.5l-5 5"/>'}</svg>`;
   $$('[data-sound]').forEach(b => {
-    const paint = () => { b.textContent = Sound.on ? 'SOUND ON' : 'SOUND OFF'; b.classList.toggle('off', !Sound.on); };
+    const paint = () => { b.innerHTML = SPK(Sound.on); b.classList.toggle('off', !Sound.on); b.setAttribute('aria-pressed', Sound.on); };
     paint();
-    b.addEventListener('click', () => { Sound.on = !Sound.on; store.set('lc-sound', Sound.on); Sound.init(); paint(); });
+    b.addEventListener('click', () => { Sound.on = !Sound.on; store.set('lc-sound', Sound.on); Sound.init(); paint(); if (Sound.on) Sound.tone(660, .25, .05); });
   });
   document.addEventListener('pointerdown', () => Sound.init(), { passive:true });
 }
@@ -1553,9 +1623,21 @@ function Room(id){
   const sec = $(`[data-room="${id}"]`), stage = $('#st-' + id);
   const wrap = document.createElement('div'); wrap.style.position = 'relative';
   stage.parentNode.insertBefore(wrap, stage); wrap.appendChild(stage);
-  wrap.insertAdjacentHTML('beforeend', `<div class="stage-over"></div><div class="stage-hint"><b></b><span></span></div><div class="toast"></div>`);
+  wrap.className = 'stage-box';
+  wrap.insertAdjacentHTML('beforeend', `<div class="stage-over"></div><div class="stage-hint"><b></b><span></span></div><div class="toast"></div><div class="cue-ring" hidden><i></i><span></span></div><div class="pin-tip">눌러서 층별로 보기</div>`);
+  const STEPS = {
+    slot:['레버 당기기', '릴이 멈출 때까지 지켜보기', '작품 눌러 해부하기'],
+    crane:['작업 시작', '표적에 맞춰 7번 떨어뜨리기', '작품 눌러 해부하기'],
+    sediment:['새 판 깔기', '누르고 있어 조각 붓기', '굳히고 해부하기'],
+    decollage:['포스터 붙이기', '누르거나 선을 그어 한 겹씩 찢기', '고정하고 해부하기'],
+  }[id];
+  sec.querySelector('.room-plate').insertAdjacentHTML('afterbegin', `<ol class="steps-mini">${STEPS.map((t, i) => `<li data-s="${i + 1}"><b>${i + 1}</b><span>${t}</span></li>`).join('')}</ol>`);
   const over = $('.stage-over', wrap), hintEl = $('.stage-hint', wrap), toastEl = $('.toast', wrap);
   const S = { id, sec, stage, wrap, over, current:null, running:false };
+  const cueEl = $('.cue-ring', wrap);
+  S.step = n => $$('.steps-mini li', sec).forEach(li => { const k = +li.dataset.s; li.classList.toggle('now', k === n); li.classList.toggle('done', k < n); });
+  S.cue = t => { cueEl.hidden = !t; if (t) $('span', cueEl).textContent = t; };
+  S.pulse = (el, on) => el && el.classList.toggle('cue', !!on);
   S.status = t => { $('[data-status]', sec).textContent = t; };
   S.hint = (b, s) => { hintEl.hidden = !b; if (b){ $('b', hintEl).innerHTML = b; $('span', hintEl).textContent = s || ''; } };
   S.toast = (t, bg, fg) => { toastEl.textContent = t; toastEl.style.background = bg; toastEl.style.color = fg; anim(toastEl, [{ opacity:0, transform:'translate(-50%,8px)' }, { opacity:1, transform:'translate(-50%,0)', offset:.15 }, { opacity:1, offset:.75 }, { opacity:0 }], { duration:1100 }); };
@@ -1581,6 +1663,8 @@ function Room(id){
     if (S.current && archive.list().some(e => e.id === S.current.id)){ S.render(S.current); S.stamp(S.current, false); stage.classList.add('pinned'); S.hint(null); }
     else { S.current = null; S.blank(S.idleBg || '#d9d5ce'); S.hint(...S.hintIdle); }
     S.show(S.current);
+    S.step(1); S.cue(null);
+    S.pulse(S.primary && $(S.primary), true); S.pulse($('[data-dissect]', sec), !!S.current);
   };
   S.open = () => S.current && CL.openModal(S.current, { onDelete: () => { S.current = null; S.idle(); counts(); } });
   S.commit = (data, keepStage) => {
@@ -1591,8 +1675,11 @@ function Room(id){
     S.current = art; over.innerHTML = '';
     if (!keepStage) S.render(art);
     S.stamp(art, true); stage.classList.add('pinned'); S.show(art); counts(); Sound.chime();
+    S.done();
     return art;
   };
+  S.done = () => { S.step(3); S.cue(null); S.pulse(S.primary && $(S.primary), false); S.pulse($('[data-dissect]', sec), true); };
+  S.begin = () => { S.step(2); S.pulse(S.primary && $(S.primary), false); S.pulse($('[data-dissect]', sec), false); };
   S.pt = e => { const b = stage.getBoundingClientRect(); return { x: clamp((e.clientX - b.left) / b.width * 100, 0, 100), y: clamp((e.clientY - b.top) / b.height * 100, 0, 100) }; };
   $('[data-dissect]', sec).addEventListener('click', S.open);
   // room switcher
@@ -1608,7 +1695,7 @@ function Room(id){
    ========================================================= */
 const slot = (() => {
   const S = Room('slot');
-  S.hintIdle = ['레버를 당기세요', 'PULL THE LEVER']; S.idleBg = '#262626';
+  S.hintIdle = ['레버를 당기세요', 'PULL THE LEVER']; S.idleBg = '#262626'; S.primary = '#pullBtn';
   let busy = false, energy = 0, src = 'scroll', lastDir = 0;
   const reels = $$('#reels .reel-win');
   const cell = (l, bg) => l ? `<div class="cell" style="background:${bg}">${fragSVG(l)}</div>` : `<div class="cell void" style="background:${bg}">VOID</div>`;
@@ -1661,7 +1748,7 @@ const slot = (() => {
   async function trigger(source){
     if (busy || modalOpen()) return;
     busy = true; S.running = true; energy = 0;
-    Sound.init(); Sound.clank();
+    Sound.init(); Sound.clank(); S.begin();
     const entry = { id: archive.nextId(), seed: newSeed(), t: Date.now(), m:'slot' };
     const art = buildArt(entry);
     S.hint(null); S.over.innerHTML = '';
@@ -1679,7 +1766,7 @@ const slot = (() => {
     await wait(ls.length * 120 + 380);
     Sound.thud(.4); shake(S.wrap, 5);
     archive.add(entry);
-    S.current = art; S.stamp(art, true); S.stage.classList.add('pinned'); S.show(art); counts(); Sound.chime();
+    S.current = art; S.stamp(art, true); S.stage.classList.add('pinned'); S.show(art); counts(); Sound.chime(); S.done();
     $('#slotLayers').textContent = pad(art.layers.length, 2);
     S.status(`완성 — No.${pad(art.id)} 「${art.title}」 ${art.layers.length}겹. 작품을 누르면 층별로 분해해 볼 수 있습니다.`);
     busy = false; S.running = false;
@@ -1764,7 +1851,7 @@ const slot = (() => {
    ========================================================= */
 const crane = (() => {
   const S = Room('crane');
-  S.hintIdle = ['작업을 시작하세요', 'START THE LIFT']; S.idleBg = '#16263a';
+  S.hintIdle = ['작업을 시작하세요', 'START THE LIFT']; S.idleBg = '#16263a'; S.primary = '#craneStart';
   const TOTAL = 7;
   let st = null, raf = 0, frame = 0;
   const svg = $('#craneSvg');
@@ -1806,6 +1893,7 @@ const crane = (() => {
     S.over.innerHTML = `<div class="c-target"><i></i></div><div class="c-cable"></div><div class="c-hook"></div><div class="c-ghost"></div>`;
     st.el = { target: $('.c-target', S.over), cable: $('.c-cable', S.over), hook: $('.c-hook', S.over), ghost: $('.c-ghost', S.over) };
     $('#craneDrop').disabled = false; $('#craneStart').textContent = '처음부터 다시';
+    S.begin(); S.pulse($('#craneDrop'), true);
     Sound.init(); Sound.clank();
     next(); raf = requestAnimationFrame(tick);
   }
@@ -1877,7 +1965,7 @@ const crane = (() => {
     cancelAnimationFrame(raf);
     if (st) st.running = false;
     S.running = false;
-    $('#craneDrop').disabled = true; $('#craneStart').textContent = '작업 시작';
+    $('#craneDrop').disabled = true; $('#craneStart').textContent = '작업 시작'; S.pulse($('#craneDrop'), false);
     if (!keep){ S.over.innerHTML = ''; st = null; paintRounds(); }
   }
   $('#craneStart').addEventListener('click', start);
@@ -1896,7 +1984,7 @@ const crane = (() => {
    ========================================================= */
 const sediment = (() => {
   const S = Room('sediment');
-  S.hintIdle = ['새 판을 까세요', 'PREPARE THE TANK']; S.idleBg = '#e9dfcd';
+  S.hintIdle = ['새 판을 까세요', 'PREPARE THE TANK']; S.idleBg = '#e9dfcd'; S.primary = '#sedStart';
   const COLS = 50, CAP = 40;
   const SANDS = ['#cdb48c', '#a77c5a', '#d9c4a0', '#8f6a4e', '#c49a6c', '#b8a07e', '#7d5b43', '#e0cfae'];
   let st = null, spawnT = 0, logT = 0;
@@ -1942,6 +2030,7 @@ const sediment = (() => {
     $('#sedBar').style.width = Math.min(h, 100) + '%';
     $('#sedTotal').textContent = `${st ? st.layers.length : 0} / ${CAP}`;
     $('#sedDone').disabled = !st || st.layers.length < 6;
+    S.pulse($('#sedDone'), !!st && st.layers.length >= 6 && !st.pouring);
     const list = $('#strataList');
     if (!st || !st.strata.length){ list.innerHTML = '<li class="empty">아직 쌓인 지층이 없습니다.</li>'; return; }
     list.innerHTML = st.strata.map((s, i) => `<li class="${st.pouring && i === st.strata.length - 1 ? 'live' : ''}"><span class="n">${pad(i + 1, 2)}</span><span class="sw" style="background:${s.c}"></span><span>${KINDS[s.kind].ko} <span class="t">· ${s.n}개</span></span><span class="t">${((s.ms + (st.pouring && i === st.strata.length - 1 ? performance.now() - s.t0 : 0)) / 1000).toFixed(1)}s</span></li>`).reverse().join('');
@@ -1957,12 +2046,13 @@ const sediment = (() => {
     syncRuler(); moveHopper(50);
     Sound.init(); Sound.clank();
     $('#sedStart').textContent = '판 다시 깔기';
+    S.begin(); S.cue('수조를 누르고 있으세요');
     S.status('수조를 누르고 있으면 조각이 쏟아집니다. 좌우로 움직여 붓는 자리를 바꾸세요.');
     paint();
   }
   function pourStart(){
     if (!st || st.pouring || st.done) return;
-    st.pouring = true;
+    st.pouring = true; S.cue(null);
     const prev = st.strata.length ? st.strata[st.strata.length - 1].kind : null;
     const bias = pick(Math.random, ['concrete', 'steel', 'type'].filter(k => k !== prev));
     st.bias = bias;
@@ -2043,8 +2133,8 @@ const sediment = (() => {
    ========================================================= */
 const decollage = (() => {
   const S = Room('decollage');
-  S.hintIdle = ['포스터를 붙이세요', 'PASTE THE POSTERS']; S.idleBg = '#bdb8ae';
-  const N = 5, G = 40, MS = 256;
+  S.hintIdle = ['포스터를 붙이세요', 'PASTE THE POSTERS']; S.idleBg = '#bdb8ae'; S.primary = '#decStart';
+  const N = 5, MS = 256;
   const POSTER = [
     { bg:'#e5381f', fg:'#111111', ac:'#f3efe4', sc:'signal' },
     { bg:'#2847d4', fg:'#f3efe4', ac:'#ffd21f', sc:'night' },
@@ -2055,7 +2145,7 @@ const decollage = (() => {
   ];
   const HEADS = ['우연', '층', '겹', '균열', '잔해', '타설', 'LAYER', 'BÉTON', 'NO.07', '지층', 'RUPTURE'];
   const SUBS = ['LAYERING CHANCE<br>제4전시실 · 2026', '우연을 레이어링하다<br>OPEN CALL', 'CONCRETE / STEEL / TYPE<br>3 MATERIALS', 'NO GRID<br>NO PLAN · NO UNDO', '해체된 입면<br>10.24 — 11.30'];
-  let st = null, maskRaf = 0, lastSnd = 0, thumbT = 0;
+  let st = null, thumbT = 0;
 
   function makeSheets(r){
     const pal = POSTER.slice().sort(() => r() - .5);
@@ -2079,54 +2169,83 @@ const decollage = (() => {
   function start(){
     stop();
     const r = rnd();
-    st = { sheets: makeSheets(r), D:new Uint8Array(G * G), wear:new Uint8Array(G * G), seen:new Uint8Array(G * G), torn:0, maxD:0, dist:0, last:null, dirty:new Set(), cv:[], pasting:true };
+    st = { sheets: makeSheets(r), peels:0, maxD:0, torn:0, stroke:null, dirty:new Set(), cv:[], pasting:true };
     S.running = true; S.hint(null); S.over.innerHTML = '';
     S.stage.style.setProperty('--bg', '#bdb8ae');
     S.stage.classList.remove('pinned');
     S.stage.innerHTML = `<div class="art-inner">${st.sheets.map(sheetHTML).join('')}</div><div class="art-grain"></div>`;
     for (let i = 0; i < N; i++){
-      const mk = () => { const c = document.createElement('canvas'); c.width = c.height = MS; const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, MS, MS); return { c, x }; };
+      const mk = () => { const c = document.createElement('canvas'); c.width = c.height = MS; const x = c.getContext('2d', { willReadFrequently:true }); x.fillStyle = '#fff'; x.fillRect(0, 0, MS, MS); return { c, x }; };
       st.cv.push({ print: mk(), paper: mk() });
     }
     thumbs(); paint();
     $('#decStart').textContent = '새 포스터 붙이기';
     S.status('기계가 포스터를 한 장씩 붙이고 있습니다…');
+    S.begin(); S.step(1);
     Sound.init();
     $$('.sheet', S.stage).forEach((el, i) => anim(el, [{ opacity:0, transform:`translate(${R(Math.random, -4, 4)}%, -6%) rotate(${R(Math.random, -5, 5)}deg) scale(1.06)` }, { opacity:1, transform:'none' }], { duration:420, delay:i * 360, easing:EASE.in, fill:'backwards' }).finished.then(() => Sound.noise(.12, .3, 600)));
-    setTimeout(() => { if (!st) return; st.pasting = false; S.status('포스터 다섯 장이 겹쳐 붙었습니다. 벽을 문질러 찢어 내세요. 같은 자리를 오래 긁을수록 깊이 파고듭니다.'); }, 360 * N + 450);
+    setTimeout(() => {
+      if (!st) return; st.pasting = false;
+      S.status('포스터 다섯 장이 겹쳐 붙었습니다. 벽을 한 번 누르면 맨 위 한 겹만 삼각형으로 찢어지고, 누른 채 선을 그으면 그 선을 따라 직선으로 찢어집니다.');
+      S.cue('한 번 누르거나, 누른 채 선을 그어 보세요'); S.step(2);
+    }, 360 * N + 450);
   }
-  function jag(ctx, px, py, rr, k = 1){
-    ctx.beginPath();
-    const v = RI(Math.random, 11, 16);
-    for (let i = 0; i < v; i++){ const a = i / v * Math.PI * 2, rad = rr * R(Math.random, .55, 1.2) * k; const X = px + Math.cos(a) * rad * 1.3, Y = py + Math.sin(a) * rad * .8; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }
-    ctx.closePath(); ctx.fill();
+  /* which poster is on top at this point? (reads the live masks) */
+  function topAt(p){
+    const px = clamp(Math.floor(p.x / 100 * MS), 0, MS - 1), py = clamp(Math.floor(p.y / 100 * MS), 0, MS - 1);
+    for (let k = N - 1; k >= 1; k--) if (st.cv[k].print.x.getImageData(px, py, 1, 1).data[3] > 127) return k;
+    return 0;
   }
-  function tearAt(x, y){
-    const cx = clamp(Math.floor(x / (100 / G)), 0, G - 1), cy = clamp(Math.floor(y / (100 / G)), 0, G - 1), ci = cy * G + cx;
-    const d = st.D[ci], k = N - 1 - d;
-    if (k < 1) return;
-    const rr = R(Math.random, 3, 5.4) / 100 * MS, px = x / 100 * MS, py = y / 100 * MS;
+  const area = pts => { let a = 0; for (let i = 0; i < pts.length; i++){ const p = pts[i], q = pts[(i + 1) % pts.length]; a += p.x * q.y - q.x * p.y; } return Math.abs(a / 2); };
+  const plen = pts => pts.reduce((s, p, i) => i ? s + Math.hypot(p.x - pts[i - 1].x, p.y - pts[i - 1].y) : 0, 0);
+  /* turn a gesture into a straight-edged tear: click → triangle shard, line → strip, loop → territory */
+  function tearShape(pts){
+    if (pts.length < 2 || plen(pts) < 3){
+      const c = pts[0], r0 = R(Math.random, 11, 17), a0 = R(Math.random, 0, 6.28);
+      return [0, 1, 2].map(i => { const a = a0 + i * 2.094 + R(Math.random, -.45, .45), rr = r0 * R(Math.random, .7, 1.25); return { x: c.x + Math.cos(a) * rr, y: c.y + Math.sin(a) * rr }; });
+    }
+    const L = plen(pts);
+    if (pts.length >= 3 && area(pts) > L * 2.6) return pts;          // closed-ish loop: tear the claimed territory
+    // strip along the drawn line, width tapering to points at both ends
+    const left = [], right = [];
+    pts.forEach((p, i) => {
+      const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)];
+      const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
+      const t = i / (pts.length - 1), w = (i === 0 || i === pts.length - 1) ? 0 : R(Math.random, 3, 5.5) * Math.sin(Math.PI * Math.min(1, t * 1.2 + .1));
+      left.push({ x: p.x - dy / d * w, y: p.y + dx / d * w }); right.push({ x: p.x + dy / d * w, y: p.y - dx / d * w });
+    });
+    return [...left, ...right.reverse()];
+  }
+  function fillPoly(ctx, pts){ ctx.beginPath(); pts.forEach((p, i) => { const X = p.x / 100 * MS, Y = p.y / 100 * MS; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.closePath(); ctx.fill(); }
+  function shrink(pts, f){ const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length, cy = pts.reduce((s, p) => s + p.y, 0) / pts.length; return pts.map(p => ({ x: cx + (p.x - cx) * f, y: cy + (p.y - cy) * f })); }
+  function drawCut(){
+    if (!st.stroke) { S.over.innerHTML = ''; return; }
+    const pts = st.stroke.pts, s = pts.map(p => `${f1(p.x)},${f1(p.y)}`).join(' ');
+    S.over.innerHTML = `<svg class="cut" viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="${s}"/><circle cx="${f1(pts[0].x)}" cy="${f1(pts[0].y)}" r=".9"/></svg>`;
+  }
+  function peel(){
+    const { k, pts } = st.stroke;
+    const poly = tearShape(pts);
     const { print, paper } = st.cv[k];
-    print.x.globalCompositeOperation = 'destination-out'; jag(print.x, px, py, rr, 1.08);
-    paper.x.globalCompositeOperation = 'destination-out'; jag(paper.x, px, py, rr, .74);
-    st.dirty.add(k);
-    if (k === N - 1){ const span = Math.ceil(rr / MS * G); for (let oy = -span; oy <= span; oy++) for (let ox = -span; ox <= span; ox++){ const X = cx + ox, Y = cy + oy; if (X >= 0 && Y >= 0 && X < G && Y < G) st.seen[Y * G + X] = 1; } }
-    if (++st.wear[ci] >= 7){ st.wear[ci] = 0; st.D[ci] = Math.min(N - 1, d + 1); st.maxD = Math.max(st.maxD, st.D[ci]); }
-  }
-  function scratch(p){
-    if (!st || st.pasting) return;
-    const last = st.last || p, dist = Math.hypot(p.x - last.x, p.y - last.y), steps = Math.max(1, Math.ceil(dist / 1.1));
-    for (let i = 1; i <= steps; i++) tearAt(last.x + (p.x - last.x) * i / steps, last.y + (p.y - last.y) * i / steps);
-    st.last = p; st.dist += dist;
-    let s = 0; for (let i = 0; i < st.seen.length; i++) s += st.seen[i];
-    st.torn = Math.round(s / (G * G) * 100);
-    const now = performance.now();
-    if (now - lastSnd > 60){ lastSnd = now; Sound.noise(.07, .16, R(Math.random, 1600, 3600), 'bandpass'); }
-    if (!maskRaf) maskRaf = requestAnimationFrame(flush);
+    print.x.globalCompositeOperation = 'destination-out'; fillPoly(print.x, poly);
+    paper.x.globalCompositeOperation = 'destination-out'; fillPoly(paper.x, shrink(poly, .86));
+    st.dirty.add(k); flush();
+    // the torn-off scrap falls away
+    const sc = document.createElement('div');
+    sc.className = 'scrap';
+    sc.style.background = st.sheets[k].bg;
+    sc.style.clipPath = `polygon(${poly.map(p => `${f1(p.x)}% ${f1(p.y)}%`).join(',')})`;
+    S.over.appendChild(sc);
+    anim(sc, [{ transform:'none', opacity:1 }, { transform:`translate(${R(Math.random, -8, 8)}%, 18%) rotate(${R(Math.random, -14, 14)}deg)`, opacity:0 }], { duration:900, easing:EASE.in }).finished.then(() => sc.remove());
+    st.peels++; st.maxD = Math.max(st.maxD, N - k);
+    st.torn = 100 - keepOf(st.cv[N - 1].print.x);
+    Sound.noise(.22, .38, R(Math.random, 1800, 3200), 'bandpass'); Sound.noise(.08, .2, 500);
+    S.status(`${st.peels}번째 찢기 — P${k + 1} 한 겹이 떨어지고 그 아래 P${k}가 드러났습니다. 같은 자리를 다시 찢으면 P${k}가 찢어집니다.`);
+    S.cue(null);
     paint();
   }
   function flush(){
-    maskRaf = 0; if (!st) return;
+    if (!st) return;
     const sh = $$('.sheet', S.stage);
     st.dirty.forEach(k => {
       const a = `url(${st.cv[k].print.c.toDataURL()})`, b = `url(${st.cv[k].paper.c.toDataURL()})`;
@@ -2134,44 +2253,59 @@ const decollage = (() => {
       pr.style.webkitMaskImage = pr.style.maskImage = a; pa.style.webkitMaskImage = pa.style.maskImage = b;
     });
     st.dirty.clear();
-    clearTimeout(thumbT); thumbT = setTimeout(keepAll, 250);
+    clearTimeout(thumbT); thumbT = setTimeout(keepAll, 150);
   }
   const keepOf = x => { const d = x.getImageData(0, 0, MS, MS).data; let a = 0; for (let i = 3; i < d.length; i += 16) a += d[i]; return Math.round(a / (d.length / 16) / 255 * 100); };
   function keepAll(){
     if (!st) return;
     $$('#sheetsList .sheet-thumb').forEach(el => { const k = +el.dataset.k; const v = k ? keepOf(st.cv[k].print.x) : 100; $('[data-keep]', el).textContent = v + '%'; $('[data-bar]', el).style.width = v + '%'; });
   }
+  function markThumb(k){ $$('#sheetsList .sheet-thumb').forEach(el => el.classList.toggle('top', +el.dataset.k === k)); }
   function paint(){
     $('#decTorn').textContent = st ? st.torn : 0;
     $('#decLayers').innerHTML = `${st ? st.maxD : 0}<small>/4</small>`;
-    $('#decDist').textContent = st ? (st.dist / 100 * 1.2).toFixed(1) : '0';
+    $('#decDist').textContent = st ? st.peels : 0;
     $('#decDepth').textContent = st && st.maxD ? `DEPTH P${N - st.maxD}` : 'DEPTH —';
-    $('#decDone').disabled = !st || st.torn < 4;
+    $('#decDone').disabled = !st || st.peels < 3;
+    $('#decDone').classList.toggle('cue', !!st && st.peels >= 3);
   }
   function finish(){
-    if (!st || st.torn < 4) return;
-    flush();
+    if (!st || st.peels < 3) return;
     const sheets = st.sheets.map((s, i) => ({ bg:s.bg, poster:s.poster, layers:s.layers, mask: i ? st.cv[i].print.c.toDataURL('image/png') : null, pmask: i ? st.cv[i].paper.c.toDataURL('image/png') : null, keep: i ? keepOf(st.cv[i].print.x) : 100 }));
-    const torn = st.torn;
-    const data = { sc:'signal', bg:'#bdb8ae', sheets, extra:{ torn } };
+    const torn = st.torn, peels = st.peels;
+    const data = { sc:'signal', bg:'#bdb8ae', sheets, extra:{ torn, peels } };
     stop(true);
     const art = S.commit(data, true);
-    S.status(`완성 — No.${pad(art.id)} 「${art.title}」 면적의 ${torn}%를 찢어 냈습니다. 작품을 누르면 포스터를 한 장씩 분해해 볼 수 있습니다.`);
+    S.status(`완성 — No.${pad(art.id)} 「${art.title}」 ${peels}번에 걸쳐 한 겹씩 찢어 냈습니다. 작품을 누르면 포스터를 한 장씩 분해해 볼 수 있습니다.`);
   }
   function stop(keep){
-    cancelAnimationFrame(maskRaf); maskRaf = 0;
     S.running = false;
     $('#decStart').textContent = '포스터 붙이기';
-    if (!keep){ st = null; thumbs(); paint(); }
-    else st = null;
+    $('#decDone').classList.remove('cue');
+    st = null;
+    if (!keep){ thumbs(); paint(); S.over.innerHTML = ''; }
   }
   $('#decStart').addEventListener('click', start);
   $('#decDone').addEventListener('click', finish);
-  let dragging = false;
   return Object.assign(S, {
-    down(e, p){ if (S.running){ dragging = true; st.last = null; scratch(p); } },
-    move(e, p){ if (S.running && dragging) scratch(p); },
-    up(){ if (S.running){ dragging = false; if (st) st.last = null; } else if (S.current) S.open(); },
+    down(e, p){
+      if (!S.running || !st || st.pasting) return;
+      const k = topAt(p);
+      if (k < 1){ S.toast('바탕 포스터까지 드러난 자리입니다', '#16171c', '#efede6'); st.stroke = null; return; }
+      st.stroke = { k, pts:[p] }; markThumb(k); drawCut();
+    },
+    move(e, p){
+      if (!st || !st.stroke) return;
+      const pts = st.stroke.pts, last = pts[pts.length - 1];
+      if (Math.hypot(p.x - last.x, p.y - last.y) > 3.5){ pts.push(p); drawCut(); Sound.tick(); }
+    },
+    up(e, p){
+      if (!S.running){ if (S.current) S.open(); return; }
+      if (!st || !st.stroke) return;
+      const pts = st.stroke.pts, last = pts[pts.length - 1];
+      if (p && Math.hypot(p.x - last.x, p.y - last.y) > 1.5) pts.push(p);
+      peel(); st.stroke = null; drawCut(); markThumb(-1);
+    },
     cancel(){},
     key(down){ if (down && !S.running) start(); },
     leave(){ if (S.running){ stop(); S.idle(); } },
