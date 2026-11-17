@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>우연을 레이어링하다 — Layering Chance</title>
 <meta name="description" content="콘크리트, 철골, 글자 조각을 우연에 맡겨 한 겹씩 쌓아 한 장의 콜라주를 만드는 인터랙티브 웹 작품.">
+<meta name="author" content="윤현지">
+<meta name="theme-color" content="#1c1b19">
+<meta property="og:type" content="website">
+<meta property="og:title" content="우연을 레이어링하다 — Layering Chance">
+<meta property="og:description" content="콘크리트, 철골, 글자 조각을 우연에 맡겨 한 겹씩 쌓아 한 장의 콜라주를 만드는 인터랙티브 웹 작품 · 윤현지, 2026">
+<meta property="og:url" content="https://yhj7636.github.io/chance-layering/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231c1b19'/%3E%3Crect x='4' y='6' width='16' height='10' fill='%23e5381f'/%3E%3Crect x='11' y='12' width='12' height='9' fill='%23ffd21f' transform='rotate(-8 17 16)'/%3E%3Crect x='8' y='19' width='18' height='7' fill='%232847d4'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -221,6 +228,22 @@ body.theme-wall .hdr{ background:rgba(239,237,230,.88); }
 .ideas dd{ color:var(--ink-2); }
 @media (max-width:860px){ .ideas dl{ grid-column:1 / -1; } .ideas dl > div{ grid-template-columns:1fr; gap:8px; } }
 
+.stmt{ display:grid; grid-template-columns:repeat(12,1fr); column-gap:24px; }
+.stmt > .sec-no{ grid-column:1 / span 2; }
+.stmt blockquote{ grid-column:3 / span 9; margin:0; font-weight:700; font-size:clamp(22px,2.7vw,42px); line-height:1.45; letter-spacing:-.035em; word-break:keep-all; }
+.stmt blockquote p{ margin:0 0 .7em; }
+.stmt blockquote em{ font-style:normal; background:linear-gradient(transparent 62%, rgba(229,56,31,.35) 62%); }
+.stmt blockquote footer{ margin-top:28px; font-weight:500; letter-spacing:.14em; opacity:.6; }
+@media (max-width:960px){ .stmt > .sec-no, .stmt blockquote{ grid-column:1 / -1; } .stmt > .sec-no{ margin-bottom:20px; } }
+.colo{ display:grid; grid-template-columns:repeat(12,1fr); column-gap:24px; padding-top:clamp(48px,8vh,96px); padding-bottom:clamp(48px,8vh,96px); }
+.colo-t{ grid-column:1 / span 4; margin:0; font-weight:900; font-size:clamp(30px,3.4vw,52px); line-height:1.02; letter-spacing:-.06em; }
+.colo dl{ grid-column:6 / span 7; margin:0; display:grid; grid-template-columns:1fr 1fr; gap:0 24px; border-top:2px solid var(--ink); }
+.colo dl > div{ display:grid; grid-template-columns:64px 1fr; gap:12px; padding:14px 0; border-bottom:1px solid var(--line); }
+.colo dt{ font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; opacity:.6; padding-top:3px; }
+.colo dd{ margin:0; font-weight:700; line-height:1.5; }
+.colo dd span{ display:block; font-weight:400; font-size:13px; color:var(--ink-2); }
+@media (max-width:960px){ .colo-t, .colo dl{ grid-column:1 / -1; } .colo-t{ margin-bottom:28px; } }
+@media (max-width:560px){ .colo dl{ grid-template-columns:1fr; } }
 .enter{ display:block; background:var(--ink); color:var(--paper-3); padding:clamp(56px,10vh,120px) var(--pad); position:relative; overflow:hidden; transition:background .35s; }
 .enter:hover{ background:var(--red); }
 .enter b{ display:block; font-weight:900; font-size:clamp(64px,11vw,190px); letter-spacing:-.07em; line-height:.84; }
@@ -581,6 +604,14 @@ body.theme-dark .hdr-sound:hover svg, body.theme-navy .hdr-sound:hover svg{ colo
     </figure>
   </section>
 
+  <section class="sec wrap stmt">
+    <p class="sec-no">STATEMENT — 작가 노트</p>
+    <blockquote class="reveal">
+      <p>브루탈리즘 건축은 콘크리트와 철골을 <em>꾸미지 않고 거친 그대로</em> 드러냈습니다.</p>
+      <p>이 웹은 그 태도를 화면으로 가져옵니다. 그리드에 맞춰 깔끔하게 정리된 웹 대신, 조각의 배치를 <em>우연에 맡기고</em> 쌓인 결과를 다듬지 않은 채 그대로 보여 줍니다.</p>
+    </blockquote>
+  </section>
+
   <section class="sec wrap">
     <div class="sec-head"><p class="sec-no">01 — ABOUT</p><h2 class="sec-title">이 웹은<br>무엇인가</h2><p class="sec-note">세 가지 질문으로 정리했습니다.</p></div>
     <div class="qa">
@@ -611,14 +642,14 @@ body.theme-dark .hdr-sound:hover svg, body.theme-navy .hdr-sound:hover svg{ colo
     <ol class="steps">
       <li class="reveal"><span class="n">1</span><h3>기계 고르기</h3><p>기계실에서 네 대의 기계 중 하나를 고릅니다. 기계마다 다루는 방법과 당신이 결정할 수 있는 범위가 다릅니다.</p></li>
       <li class="reveal"><span class="n">2</span><h3>작동하기</h3><p>레버를 당기고, 순간을 맞추고, 누르고, 찢어 냅니다. 조각이 쌓이는 과정을 끝까지 지켜보세요. 기계가 멈추면 작품이 완성됩니다.</p></li>
-      <li class="reveal"><span class="n">3</span><h3>해부하고 보관하기</h3><p>완성된 작품을 누르면 몇 겹으로, 어떤 조각이, 어떤 순서로 쌓였는지 층별로 분해해 볼 수 있습니다. 모든 작품은 보관소에 차례로 걸립니다.</p></li>
+      <li class="reveal"><span class="n">3</span><h3>해부하고 보관하기</h3><p>완성된 작품을 누르면 몇 겹으로, 어떤 조각이, 어떤 순서로 쌓였는지 층별로 분해해 볼 수 있습니다. 모든 작품은 보관소에 차례로 걸리고, 이름표가 붙은 한 장의 이미지로 저장할 수도 있습니다.</p></li>
     </ol>
   </section>
 
   <section class="sec wrap">
     <div class="sec-head"><p class="sec-no">05 — BACKGROUND</p><h2 class="sec-title">작품이 빌려 온<br>네 가지 생각</h2></div>
     <div class="ideas"><dl>
-      <div class="reveal"><dt><span>BRUTALISM</span><b>브루탈리즘</b></dt><dd>1950~70년대 건축 경향으로, 콘크리트를 매끈하게 마감하지 않고 거친 표면 그대로 드러냈습니다. 이 작품의 콘크리트 질감과 다듬지 않은 화면은 여기서 왔습니다.</dd></div>
+      <div class="reveal"><dt><span>BRUTALISM</span><b>브루탈리즘</b></dt><dd>1950~70년대 건축 경향으로, 콘크리트를 매끈하게 마감하지 않고 거친 표면 그대로 드러냈습니다. 이 작품의 재료(콘크리트, 철골)와 다듬지 않은 화면, 정돈되지 않은 결과를 그대로 보여 주는 태도가 모두 여기서 왔습니다.</dd></div>
       <div class="reveal"><dt><span>DECONSTRUCTION</span><b>해체주의</b></dt><dd>완성된 구조를 다시 분해해 그 안이 어떻게 짜여 있는지 드러내는 사고방식입니다. 완성작을 층별로 뜯어 보는 ‘분해’ 기능이 이 생각을 따릅니다.</dd></div>
       <div class="reveal"><dt><span>CHANCE</span><b>우연의 법칙</b></dt><dd>다다이스트 장 아르프(Jean Arp)는 종이 조각을 떨어뜨려 떨어진 자리 그대로 붙여 콜라주를 만들었다고 전해집니다. 슬롯, 크레인, 퇴적 기계는 이 ‘떨어뜨리기’를 코드로 옮긴 것입니다.</dd></div>
       <div class="reveal"><dt><span>DÉCOLLAGE</span><b>데콜라주</b></dt><dd>1950년대 파리의 작가들(레몽 앵스, 자크 빌레글레 등)은 거리에 겹겹이 붙은 포스터를 찢어 내 작품으로 만들었습니다. 쌓는 대신 벗겨 내는 레이어링 — 네 번째 기계의 출발점입니다.</dd></div>
@@ -626,7 +657,7 @@ body.theme-dark .hdr-sound:hover svg, body.theme-navy .hdr-sound:hover svg{ colo
   </section>
 
   <a class="enter" href="#/machine"><span class="mono-s" style="opacity:.6">ENTER — 01 기계실</span><b>기계실<br>입장</b><p>다음 작품은 아직 존재하지 않습니다 · 지금까지 <span data-archive-count>00</span>점이 완성되었습니다</p></a>
-  <footer class="foot"><span>우연을 레이어링하다 · LAYERING CHANCE · 2026</span><span>모든 이미지는 코드로 실시간 생성됩니다</span></footer>
+  <footer class="foot"><span>우연을 레이어링하다 · LAYERING CHANCE · 2026</span><span>© 윤현지 · 모든 이미지는 코드로 실시간 생성됩니다</span></footer>
 </main>
 
 <!-- ================================================================
@@ -648,7 +679,7 @@ body.theme-dark .hdr-sound:hover svg, body.theme-navy .hdr-sound:hover svg{ colo
     <div class="room-body">
       <div class="room-plate">
         <div class="slot-plate"><div class="art stage" id="st-slot"></div></div>
-        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="act" data-dissect hidden>해부하기</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
+        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="act" data-dissect hidden>해부하기</button><button class="act act-ghost" data-save hidden>이미지 저장</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
       </div>
       <div class="slot-rig">
         <div class="cab">
@@ -683,7 +714,7 @@ body.theme-dark .hdr-sound:hover svg, body.theme-navy .hdr-sound:hover svg{ colo
           <div style="position:relative"><div class="art stage" id="st-crane"></div></div>
           <div class="crane-ground"></div>
         </div>
-        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="act" data-dissect hidden>해부하기</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
+        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="act" data-dissect hidden>해부하기</button><button class="act act-ghost" data-save hidden>이미지 저장</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
       </div>
       <div class="hud">
         <div class="panel-h"><p class="mono-s">SITE LOG — 7 LIFTS</p><p class="mono-s" id="craneFitTxt">FIT 0 · MISS 0</p></div>
@@ -711,7 +742,7 @@ body.theme-dark .hdr-sound:hover svg, body.theme-navy .hdr-sound:hover svg{ colo
           <div class="ruler" id="ruler"></div>
           <div class="tank-glass"><div class="art stage" id="st-sediment"></div></div>
         </div>
-        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="act" data-dissect hidden>해부하기</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
+        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="act" data-dissect hidden>해부하기</button><button class="act act-ghost" data-save hidden>이미지 저장</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
       </div>
       <div>
         <div class="strata-log"><h4><span>STRATA LOG — 지층 기록</span><span id="sedTotal">0 / 40</span></h4><ol id="strataList"><li class="empty">아직 쌓인 지층이 없습니다.</li></ol></div>
@@ -735,7 +766,7 @@ body.theme-dark .hdr-sound:hover svg, body.theme-navy .hdr-sound:hover svg{ colo
     <div class="room-body">
       <div class="room-plate">
         <div class="wall"><div class="art stage" id="st-decollage"></div><span class="wall-tag">RUE — WALL 04 · 한 번에 한 겹</span></div>
-        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="act" data-dissect hidden>해부하기</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
+        <div class="room-under"><p class="work-title" data-title><small>LAST WORK</small>아직 완성된 작품이 없습니다</p><button class="act" data-dissect hidden>해부하기</button><button class="act act-ghost" data-save hidden>이미지 저장</button><a class="btn btn-ghost" href="#/archive" data-toarc hidden>보관소 보기</a></div>
       </div>
       <div>
         <div class="panel">
@@ -1361,6 +1392,52 @@ const anim = (el, kf, o) => el && el.animate ? el.animate(kf, { fill:'none', ...
 const wait = ms => new Promise(r => setTimeout(r, ms));
 function shake(el, amp = 8){ anim(el, [{ transform:`translate(${-amp}px,${amp / 2}px)` }, { transform:`translate(${amp * .6}px,${-amp / 3}px)` }, { transform:`translate(${-amp * .3}px,0)` }, { transform:'none' }], { duration:420, easing:'ease-out' }); }
 
+/* ---------- export a work as a PNG print (with museum label) ---------- */
+async function exportPNG(art){
+  const S = 1600, CAP = 210, H = S + CAP, M = MACHINES[art.machine];
+  const d = new Date(art.t), date = `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()}.`;
+  const host = document.createElement('div');
+  host.style.cssText = 'position:fixed;left:-99999px;top:0;';
+  const css = [...document.querySelectorAll('style')].map(x => x.textContent).join('\n');
+  const defs = (document.getElementById('cl-defs') || {}).parentNode;
+  const KR = "'Noto Sans KR','Noto Sans CJK KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif", MO = "'IBM Plex Mono','DejaVu Sans Mono',Menlo,monospace";
+  host.innerHTML = `<div style="width:${S}px;height:${H}px;background:#ecebe6;position:relative;overflow:hidden">
+    <style></style>${defs ? defs.outerHTML : ''}
+    <div style="width:${S}px">${artBox(art, '', { nometa:true })}</div>
+    <div style="position:absolute;left:0;right:0;bottom:0;height:${CAP}px;padding:34px 56px;box-sizing:border-box;display:flex;justify-content:space-between;align-items:flex-end;border-top:4px solid #1c1b19;color:#1c1b19">
+      <div><div style="font:500 20px/1 ${MO};letter-spacing:4px;color:#6b6760">No.${pad(art.id)} · ${M.no} ${M.en}</div>
+      <div style="font:900 64px/1.15 ${KR};letter-spacing:-2px;margin-top:18px">${art.title}</div></div>
+      <div style="text-align:right;font:500 19px/1.7 ${MO};letter-spacing:2px;color:#3a3835">우연을 레이어링하다<br>LAYERING CHANCE<br>${M.ko} · ${date}<br>SEED ${pad(art.seed >>> 0, 10)}</div>
+    </div></div>`;
+  host.querySelector('style').textContent = css + `\n.art{width:${S}px}.art-grain{background-size:360px}`;
+  document.body.appendChild(host);
+  try {
+    const xhtml = new XMLSerializer().serializeToString(host.firstElementChild);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${H}"><foreignObject x="0" y="0" width="${S}" height="${H}">${xhtml}</foreignObject></svg>`;
+    const img = new Image();
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    await img.decode();
+    const c = document.createElement('canvas'); c.width = S; c.height = H;
+    const g = c.getContext('2d'); g.fillStyle = '#ecebe6'; g.fillRect(0, 0, S, H); g.drawImage(img, 0, 0);
+    const blob = await new Promise((res, rej) => { try { c.toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/png'); } catch (e) { rej(e); } });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = `layering-chance-No${pad(art.id)}.png`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    return true;
+  } catch (e) { return false; }
+  finally { host.remove(); }
+}
+async function saveBtn(btn, art){
+  if (btn.disabled) return;
+  const label = btn.textContent; btn.disabled = true; btn.textContent = '저장하는 중…';
+  Sound.init(); Sound.tick();
+  const ok = await exportPNG(art);
+  btn.textContent = ok ? '저장했습니다' : '이 브라우저에서는 저장할 수 없습니다';
+  if (ok) Sound.tone(660, .3, .05);
+  setTimeout(() => { btn.textContent = label; btn.disabled = false; }, 1800);
+}
+
 /* ---------- dissection modal ---------- */
 let modalOpen = false;
 function mountModal(){
@@ -1397,6 +1474,7 @@ function openModal(art, opts = {}){
         <div class="cat-frame">${artBox(art, '', { nometa:true }).replace('class="art ', 'id="mArt" class="art ')}</div>
         <div class="cat-actions">
           <button class="act" id="explodeBtn">층별로 분해하기</button>
+          <button class="act act-ghost" id="saveBtn">이미지로 저장</button>
           <button class="act act-ghost" id="deleteBtn">작품 파기</button>
         </div>
         <p class="mono-s dim">오른쪽 목록 위에 커서를 올리면 해당 층만 남습니다.</p>
@@ -1439,6 +1517,7 @@ function openModal(art, opts = {}){
     e.currentTarget.classList.toggle('on', ex);
     Sound.tone(ex ? 330 : 262, .7, .05);
   });
+  $('#saveBtn').addEventListener('click', e => saveBtn(e.currentTarget, art));
   let armed = false;
   $('#deleteBtn').addEventListener('click', e => {
     if (!armed){ armed = true; e.currentTarget.textContent = '한 번 더 누르면 파기됩니다'; e.currentTarget.classList.add('warn'); return; }
@@ -1468,7 +1547,7 @@ const counts = () => $$('[data-archive-count]').forEach(el => { el.textContent =
 
 window.CL = { MACHINES, DOM_LABEL, newSeed, rnd, makeLayer, generateArt, analyze, buildArt, critique, makeTitle,
   layerHTML, fragHTML, sheetHTML, posterHTML, artInnerHTML, artBox, archive, store, Sound, EASE, anim, wait, shake,
-  openModal, closeModal, isModalOpen: () => modalOpen, initChrome, counts };
+  openModal, closeModal, exportPNG, saveBtn, isModalOpen: () => modalOpen, initChrome, counts };
 })();
 
 </script>
@@ -1592,6 +1671,7 @@ function renderArchive(animate){
   }).join('');
   $$('#works .work').forEach(w => w.addEventListener('click', () => { const e = archive.list().find(x => x.id === +w.dataset.id); if (e) CL.openModal(buildArt(e), { onDelete: () => { renderArchive(false); counts(); } }); }));
   $('#emptyWall').hidden = arts.length > 0;
+  $('.arc-tools').hidden = all.length === 0;
   $('#arcCount').textContent = all.length;
   counts();
   if (animate) $$('#works .work').forEach((w, i) => anim(w, [{ opacity:0, transform:'translateY(24px)' }, { opacity:1, transform:'none' }], { duration:600, delay:i * 40, easing:EASE.out, fill:'backwards' }));
@@ -1656,7 +1736,7 @@ function Room(id){
   S.show = art => {
     const t = $('[data-title]', sec);
     t.innerHTML = art ? `<small>No.${pad(art.id)} · LAST WORK</small>${art.title}` : `<small>LAST WORK</small>아직 완성된 작품이 없습니다`;
-    $('[data-dissect]', sec).hidden = !art; $('[data-toarc]', sec).hidden = !art;
+    $('[data-dissect]', sec).hidden = !art; $('[data-save]', sec).hidden = !art; $('[data-toarc]', sec).hidden = !art;
   };
   S.idle = () => {
     over.innerHTML = '';
@@ -1682,6 +1762,7 @@ function Room(id){
   S.begin = () => { S.step(2); S.pulse(S.primary && $(S.primary), false); S.pulse($('[data-dissect]', sec), false); };
   S.pt = e => { const b = stage.getBoundingClientRect(); return { x: clamp((e.clientX - b.left) / b.width * 100, 0, 100), y: clamp((e.clientY - b.top) / b.height * 100, 0, 100) }; };
   $('[data-dissect]', sec).addEventListener('click', S.open);
+  $('[data-save]', sec).addEventListener('click', e => S.current && CL.saveBtn(e.currentTarget, S.current));
   // room switcher
   $('[data-switch]', sec).innerHTML = ['slot', 'crane', 'sediment', 'decollage'].map(k => `<a href="#/machine/${k}" class="${k === id ? 'here' : ''}" title="${MACHINES[k].ko}">${MACHINES[k].no}</a>`).join('');
   // newest work made in this room
@@ -1955,6 +2036,7 @@ const crane = (() => {
     setTimeout(() => { if (!st || !st.running) return; st.layers.length >= TOTAL ? finish() : next(); }, 800);
   }
   function finish(){
+    if (!st || st.sealed) return; st.sealed = true;
     const fit = st.log.filter(x => x.fit).length;
     const data = { sc: st.sc, bg: st.bg, layers: st.layers, extra:{ fit } };
     stop(true);
@@ -2095,10 +2177,11 @@ const sediment = (() => {
     const fall = S.stage.clientHeight * (y + 14) / 100;
     anim(el, [{ transform:`translateY(${-fall}px) rotate(${R(r, -120, 120)}deg)` }, { transform:'translateY(0)', offset:.72 }, { transform:'translateY(-3%)', offset:.86 }, { transform:'none' }], { duration:620, easing:'cubic-bezier(.55,0,1,.45)' }).finished.then(() => Sound.noise(.05, .16, 700));
     paint();
-    if (Math.max(...st.h) > 92){ st.done = true; S.status('퇴적층이 수조 꼭대기에 닿았습니다. 기계가 스스로 굳힙니다.'); pourEnd(); setTimeout(finish, 700); }
+    if (Math.max(...st.h) > 92 && !st.done){ st.done = true; S.status('퇴적층이 수조 꼭대기에 닿았습니다. 기계가 스스로 굳힙니다.'); pourEnd(); setTimeout(finish, 700); }
   }
   function finish(){
-    if (!st || !st.layers.length) return;
+    if (!st || !st.layers.length || st.sealed) return;
+    st.sealed = true; $('#sedDone').disabled = true; $('#sedDone').classList.remove('cue');
     if (st.pouring) pourEnd();
     const bands = st.strata.map((s, i) => ({ c: s.c, top: (i < st.strata.length - 1 ? st.strata[i + 1].bot : st.h).map(v => +v.toFixed(1)), bot: s.bot.map(v => +v.toFixed(1)) }));
     const data = { sc: st.sc, bg: st.bg, layers: st.layers, bands, extra:{ strata: st.strata.length } };
@@ -2324,8 +2407,10 @@ Object.values(ROOMS).forEach(S => {
   st.addEventListener('pointerleave', () => S.cancel());
   S.idle();
 });
-const spaceOk = e => e.code === 'Space' && !modalOpen() && document.body.dataset.room === 'machine' && ROOMS[document.body.dataset.sub] && !['button', 'input', 'textarea', 'a'].includes((e.target.tagName || '').toLowerCase());
-document.addEventListener('keydown', e => { if (!spaceOk(e)) return; e.preventDefault(); if (!e.repeat) ROOMS[document.body.dataset.sub].key(true); });
+const spaceOk = e => e.code === 'Space' && !modalOpen() && document.body.dataset.room === 'machine' && ROOMS[document.body.dataset.sub] && !['input', 'textarea', 'select'].includes((e.target.tagName || '').toLowerCase());
+// Space always drives the machine: a mouse-focused button must not be "clicked" again by it
+const spaceBlur = e => { const t = e.target; if (t && t.blur && /^(button|a)$/i.test(t.tagName)) t.blur(); };
+document.addEventListener('keydown', e => { if (!spaceOk(e)) return; e.preventDefault(); spaceBlur(e); if (!e.repeat) ROOMS[document.body.dataset.sub].key(true); });
 document.addEventListener('keyup', e => { if (!spaceOk(e)) return; e.preventDefault(); ROOMS[document.body.dataset.sub].key(false); });
 
 window.ROOMS = {
