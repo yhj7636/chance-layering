@@ -192,7 +192,7 @@ body.theme-wall .hdr{ background:rgba(239,237,230,.88); }
 .door dl div{ display:flex; justify-content:space-between; gap:10px; padding:3px 0; }
 .door dt{ font-family:var(--mono); font-size:10px; letter-spacing:.1em; opacity:.6; padding-top:3px; white-space:nowrap; }
 .door dd{ font-weight:700; text-align:right; }
-.door-go{ display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding:14px 16px; background:var(--dc); color:var(--db); font-weight:900; font-size:15px; }
+.door-go{ display:inline-flex; align-self:flex-end; align-items:center; margin-top:16px; padding:8px 16px; background:var(--dc); color:var(--db); font-weight:700; font-size:13px; }
 .door-go span{ font-family:var(--mono); font-size:10px; letter-spacing:.14em; font-weight:500; }
 @media (max-width:1100px){ .doors{ grid-template-columns:1fr 1fr; } }
 @media (max-width:620px){ .doors{ grid-template-columns:1fr; } .door{ min-height:0; } }
@@ -531,10 +531,10 @@ body{ word-break:keep-all; overflow-wrap:break-word; }
 .room .act.act-ghost.cue{ --cue-c:var(--rc); }
 
 /* speaker icon */
-.hdr-sound{ width:40px; height:40px; padding:0; display:grid; place-items:center; border-radius:50%; border:1.5px solid currentColor; }
-.hdr-sound:hover{ background:currentColor; }
-.hdr-sound:hover svg{ color:var(--paper-3); }
-body.theme-dark .hdr-sound:hover svg, body.theme-navy .hdr-sound:hover svg{ color:#111; }
+.hdr-sound{ width:40px; height:40px; padding:0; display:grid; place-items:center; border-radius:50%; border:0; }
+.hdr-sound{ background:none; transition:opacity .2s; }
+.hdr-sound:hover{ opacity:.6; }
+.hdr-sound svg{ width:24px; height:24px; }
 .hdr-sound.off{ opacity:.5; }
 @media (max-width:720px){ .hdr-sound{ display:grid; width:34px; height:34px; } }
 
@@ -673,7 +673,7 @@ body.theme-dark .hdr-sound:hover svg, body.theme-navy .hdr-sound:hover svg{ colo
   <section class="room room-slot wrap" data-room="slot" hidden>
     <div class="room-head">
       <div class="room-no">01</div>
-      <div class="room-title"><p class="mono-s">ROOM 01 — SLOT MACHINE · 우연 100%</p><h2>슬롯 기계</h2><p>레버를 당기면 세 개의 릴이 돌고, 멈추는 순간 조각 6~11개가 한꺼번에 쌓입니다. 당신은 시작만 정하고, 나머지는 모두 기계가 정합니다. 스크롤을 거칠게 흔들어도 레버가 당겨집니다.</p></div>
+      <div class="room-title"><p class="mono-s">SLOT MACHINE · 우연 100%</p><h2>슬롯 기계</h2><p>레버를 당기면 세 개의 릴이 돌고, 멈추는 순간 조각 6~11개가 한꺼번에 쌓입니다. 당신은 시작만 정하고, 나머지는 모두 기계가 정합니다. 스크롤을 거칠게 흔들어도 레버가 당겨집니다.</p></div>
       <div class="room-nav"><a class="room-back" href="#/machine">기계실 전체</a><div class="room-switch" data-switch></div></div>
     </div>
     <div class="room-body">
@@ -704,7 +704,7 @@ body.theme-dark .hdr-sound:hover svg, body.theme-navy .hdr-sound:hover svg{ colo
   <section class="room room-crane wrap" data-room="crane" hidden>
     <div class="room-head">
       <div class="room-no">02</div>
-      <div class="room-title"><p class="mono-s">ROOM 02 — TOWER CRANE · 타이밍</p><h2>크레인 기계</h2><p>크레인에 매달린 조각이 현장 위를 흔들리며 지나갑니다. 원하는 순간에 떨어뜨리세요. 노란 표적에 가깝게 떨어뜨리면 조각이 격자에 반듯하게 맞물리고, 빗나가면 흔들리던 각도 그대로 굳습니다. 일곱 번, 갈수록 빨라집니다.</p></div>
+      <div class="room-title"><p class="mono-s">TOWER CRANE · 타이밍</p><h2>크레인 기계</h2><p>크레인에 매달린 조각이 현장 위를 흔들리며 지나갑니다. 원하는 순간에 떨어뜨리세요. 노란 표적에 가깝게 떨어뜨리면 조각이 격자에 반듯하게 맞물리고, 빗나가면 흔들리던 각도 그대로 굳습니다. 일곱 번, 갈수록 빨라집니다.</p></div>
       <div class="room-nav"><a class="room-back" href="#/machine">기계실 전체</a><div class="room-switch" data-switch></div></div>
     </div>
     <div class="room-body">
@@ -732,7 +732,7 @@ body.theme-dark .hdr-sound:hover svg, body.theme-navy .hdr-sound:hover svg{ colo
   <section class="room room-sediment wrap" data-room="sediment" hidden>
     <div class="room-head">
       <div class="room-no">03</div>
-      <div class="room-title"><p class="mono-s">ROOM 03 — SEDIMENT TANK · 중력과 시간</p><h2>퇴적 기계</h2><p>수조를 누르고 있는 동안 호퍼에서 조각이 쏟아져 바닥부터 쌓입니다. 좌우로 움직이면 붓는 자리가 바뀌고, 오래 누를수록 지층이 두꺼워집니다. 손을 떼면 지층 하나가 끝나고, 다시 누르면 다른 재료의 새 지층이 시작됩니다.</p></div>
+      <div class="room-title"><p class="mono-s">SEDIMENT TANK · 중력과 시간</p><h2>퇴적 기계</h2><p>수조를 누르고 있는 동안 호퍼에서 조각이 쏟아져 바닥부터 쌓입니다. 좌우로 움직이면 붓는 자리가 바뀌고, 오래 누를수록 지층이 두꺼워집니다. 손을 떼면 지층 하나가 끝나고, 다시 누르면 다른 재료의 새 지층이 시작됩니다.</p></div>
       <div class="room-nav"><a class="room-back" href="#/machine">기계실 전체</a><div class="room-switch" data-switch></div></div>
     </div>
     <div class="room-body">
@@ -760,7 +760,7 @@ body.theme-dark .hdr-sound:hover svg, body.theme-navy .hdr-sound:hover svg{ colo
   <section class="room room-decollage wrap" data-room="decollage" hidden>
     <div class="room-head">
       <div class="room-no">04</div>
-      <div class="room-title"><p class="mono-s">ROOM 04 — DÉCOLLAGE WALL · 벗겨 내기</p><h2>데콜라주 기계</h2><p>기계가 벽에 포스터 다섯 장을 겹쳐 붙입니다. 한 번 누르면 맨 위의 한 겹만 삼각형으로 찢어지고, 누른 채 선을 그으면 그 선을 따라 직선으로 찢어집니다. 선으로 영역을 둘러싸면 땅따먹기처럼 그 영역이 통째로 떨어집니다. 손을 뗐다가 같은 자리를 다시 찢으면 그 아래 한 겹이 찢어집니다.</p></div>
+      <div class="room-title"><p class="mono-s">DÉCOLLAGE WALL · 벗겨 내기</p><h2>데콜라주 기계</h2><p>기계가 벽에 포스터 다섯 장을 겹쳐 붙입니다. 한 번 누르면 맨 위의 한 겹만 삼각형으로 찢어지고, 누른 채 선을 그으면 그 선을 따라 직선으로 찢어집니다. 선으로 영역을 둘러싸면 땅따먹기처럼 그 영역이 통째로 떨어집니다. 손을 뗐다가 같은 자리를 다시 찢으면 그 아래 한 겹이 찢어집니다.</p></div>
       <div class="room-nav"><a class="room-back" href="#/machine">기계실 전체</a><div class="room-switch" data-switch></div></div>
     </div>
     <div class="room-body">
@@ -1601,12 +1601,12 @@ function doorHTML(id, i){
   }[id];
   const pv = id === 'decollage' ? doorPoster(91) : artBox(previewArt(id, 1000 + i * 77), '', { nometa:true });
   return `<a class="door d-${id} reveal" href="#/machine/${id}">
-    <div class="door-top"><span>ROOM ${M.no}</span><span>${M.en}</span></div>
+    <div class="door-top"><span>${M.en}</span></div>
     <div class="door-art">${pv}</div>
     <h3>${M.ko}</h3>
     <p>${how}</p>
     <dl><div><dt>당신이 정하는 것</dt><dd>${M.you}</dd></div><div><dt>우연이 정하는 것</dt><dd>${M.chance}</dd></div></dl>
-    <div class="door-go">입장하기<span>ROOM ${M.no}</span></div>
+    <div class="door-go">입장하기</div>
   </a>`;
 }
 const IDS = ['slot', 'crane', 'sediment', 'decollage'];
@@ -2458,7 +2458,7 @@ function show(r){
 }
 function label(r){
   const M = MACHINES[r.sub];
-  return M ? [`${M.no}<br>${M.ko}`, `ROOM ${M.no} — ${M.en}`] : [`${NAMES[r.p][0]}<br>${NAMES[r.p][1]}`, NAMES[r.p][2]];
+  return M ? [`${M.no}<br>${M.ko}`, `${M.en}`] : [`${NAMES[r.p][0]}<br>${NAMES[r.p][1]}`, NAMES[r.p][2]];
 }
 let busy = false;
 function go(){
